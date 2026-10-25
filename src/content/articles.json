@@ -1,0 +1,122 @@
+[
+  {
+    "slug": "how-to-choose-a-course",
+    "category": "Planning",
+    "readingMinutes": 6,
+    "title": "How to choose a course that fits your goals",
+    "description": "Choose an international course by fit, evidence, cost and future goals—not by destination alone.",
+    "intro": "A good course choice should make sense academically, financially and personally. Start by asking the questions that affect your future, not by choosing a flag.",
+    "sections": [
+      {
+        "heading": "Start with the outcome, not the country",
+        "body": "Many students begin by choosing a destination and searching for a course afterwards. Reverse the process. Identify the academic subject you want to study, the work it relates to and why that progression makes sense from your previous qualifications."
+      },
+      {
+        "heading": "Assess your current profile",
+        "body": "Write down your grades, completed qualifications, any study gaps, language-test results and relevant experience. Use the institution’s published requirements to distinguish realistic programmes from aspirational ones."
+      },
+      {
+        "heading": "Compare the actual course",
+        "body": "Review the module list, assessment methods, placement opportunities where available, qualification level, duration and tuition. Ask whether the curriculum gives you the skills you want rather than relying on a course title."
+      },
+      {
+        "heading": "Consider the whole cost",
+        "body": "Account for tuition, living costs, insurance where required, travel, housing deposits and emergency funds. Avoid making a decision based only on the first semester’s fees."
+      },
+      {
+        "heading": "Shortlist with evidence",
+        "body": "Keep a simple comparison sheet for three to five realistic courses. Note why each option meets your goals, the published entry requirements, deadlines and unanswered questions. Use our destination guides as a starting point and verify final requirements directly with the institution."
+      }
+    ]
+  },
+  {
+    "slug": "study-abroad-budget-checklist",
+    "category": "Money & planning",
+    "readingMinutes": 5,
+    "title": "A realistic study-abroad budget checklist",
+    "description": "Understand the often-overlooked costs of international education and plan beyond the first tuition payment.",
+    "intro": "A budget should cover more than tuition. A clear first-year estimate helps you compare options and avoid expensive surprises.",
+    "sections": [
+      {
+        "heading": "Separate one-time and recurring expenses",
+        "body": "One-time costs may include application fees, document processing, visa charges, travel and housing deposits. Recurring costs may include tuition instalments, rent, groceries, local transport, phone bills and utilities."
+      },
+      {
+        "heading": "Research city-level costs",
+        "body": "Two courses with similar fees can create very different monthly budgets. Rent and transport can vary across cities and even neighbourhoods. Use recent, location-specific estimates and check how the university supports students with accommodation."
+      },
+      {
+        "heading": "Understand financial evidence",
+        "body": "Immigration authorities may require specific forms of financial evidence. The amount, source, timing and acceptable documentation depend on the destination and your circumstances. Always use the current official guidance."
+      },
+      {
+        "heading": "Create a buffer",
+        "body": "Exchange rates, unexpected travel and accommodation changes can affect your finances. A sensible plan includes contingency funds and does not depend on speculative future earnings from part-time work."
+      },
+      {
+        "heading": "Make a decision sheet",
+        "body": "List estimated first-year expenses next to confirmed funding. Flag any gaps before accepting an offer. Discuss risks openly with the people supporting your education."
+      }
+    ]
+  },
+  {
+    "slug": "application-document-checklist",
+    "category": "Applications",
+    "readingMinutes": 4,
+    "title": "Your first application document checklist",
+    "description": "Prepare clear, authentic academic documents and keep track of what each institution requests.",
+    "intro": "Getting organised early saves time. Different institutions ask for different evidence, so build your checklist around official instructions.",
+    "sections": [
+      {
+        "heading": "Collect your academic records",
+        "body": "Keep clear copies of completion certificates, transcripts and relevant academic documents. Some institutions require official or certified versions; follow their published instructions."
+      },
+      {
+        "heading": "Check identity and travel documents",
+        "body": "Check that identity documents are current and names are consistent. If your names vary between records, ask the relevant institution what supporting evidence it accepts."
+      },
+      {
+        "heading": "Prepare course-specific evidence",
+        "body": "English-language test results, personal statements, references, portfolios or academic proposals may be requested. These vary by programme and should not be treated as a universal checklist."
+      },
+      {
+        "heading": "Keep financial evidence private",
+        "body": "Never email bank passwords or disclose sensitive information through informal channels. Ask what evidence is genuinely necessary and use secure, verified document-sharing methods."
+      },
+      {
+        "heading": "Track versions and deadlines",
+        "body": "Name files clearly and keep a record of submission deadlines and institution responses. Avoid editing original documents and never use fabricated financial or academic records."
+      }
+    ]
+  },
+  {
+    "slug": "checking-student-visa-information",
+    "category": "Visa information",
+    "readingMinutes": 5,
+    "title": "How to verify student visa information",
+    "description": "Know where to check immigration rules and spot misleading promises.",
+    "intro": "Immigration rules can change. Responsible planning starts with official information and makes space for uncertainty.",
+    "sections": [
+      {
+        "heading": "Begin with official sources",
+        "body": "Social media posts and agency websites can be useful signposts but may remain online after rules change. Start with the relevant national immigration authority and check the page date or policy notice."
+      },
+      {
+        "heading": "Separate admission from immigration",
+        "body": "A university offer is not a student visa. The institution makes an admissions decision; the relevant government authority makes an immigration decision. Neither should be represented as automatic."
+      },
+      {
+        "heading": "Avoid blanket statements",
+        "body": "Financial evidence, work rights, dependants, eligibility, and processing times may depend on the visa type and personal facts. A rule that applies to one student may not apply to another."
+      },
+      {
+        "heading": "Ask for dated, written explanations",
+        "body": "When discussing an important requirement, request the source link and the date it was checked. Save official communications and confirm requirements again before submitting an application."
+      },
+      {
+        "heading": "Watch for warning signs",
+        "body": "Be cautious of guaranteed visas, fabricated documents, pressure to hide information and claims that an education provider can override an immigration decision. Responsible guidance explains uncertainty as well as opportunities."
+      }
+    ]
+  }
+]

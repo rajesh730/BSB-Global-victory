@@ -1,0 +1,8 @@
+import Image from 'next/image';
+import {ButtonLink} from '@/components/ui/ButtonLink';
+import {Eyebrow} from '@/components/ui/Eyebrow';
+
+export function HomeHero() {
+  return <><section className="home-hero"><div className="container home-hero-grid"><div className="home-hero-copy"><Eyebrow>Guidance shaped around you</Eyebrow><h1>Big ambitions.<br/><span>A clearer way</span><br/>forward<span className="hero-period">.</span></h1><p className="lead">Your education journey deserves more than a list of universities. Start with a thoughtful plan built around your goals, budget and possibilities.</p><div className="hero-actions"><ButtonLink href="/contact">Book a conversation</ButtonLink><ButtonLink href="/study-abroad" variant="outline">Explore destinations</ButtonLink></div><p className="hero-note"><span className="note-line"/>From Nepal, with a wider perspective.</p></div>
+    <div className="hero-editorial" role="img" aria-label="Illustrated globe and international education journal"><div className="hero-art-top"><span>THE BSB GLOBAL JOURNAL</span><span>NEPAL <b>↗</b> THE WORLD</span></div><Image className="hero-globe" src="/illustrations/hero-journey-globe.svg" alt="" width={610} height={560} priority/><div className="hero-travel-card"><span>YOUR NEXT CHAPTER / VOL. 01</span><strong>Explore more.<br/>Decide better.</strong><p>An education journey that starts with clarity.</p><small>BSB GLOBAL — EDUCATION & FUTURE</small></div><div className="hero-art-bottom"><span>STUDY / PLAN / GROW</span><span>JAPAN · UK · KOREA</span></div></div></div></section><div className="hero-ticker"><div className="container">STUDY WITH INTENTION <span>✳</span> EXPLORE WITH CURIOSITY <span>✳</span> PLAN WITH CONFIDENCE</div></div></>;
+}

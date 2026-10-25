@@ -1,0 +1,10 @@
+import type { Service } from '@/types/content';
+
+export const services: Service[] = [
+  { number: '01', shortLabel: 'COUNSELLING', icon: 'compass', title: 'One-to-one study counselling', summary: 'Begin with your academic background, interests, budget and longer-term plans before choosing a country.', benefits: ['Review your education history', 'Identify realistic study goals', 'Create questions for further research'] },
+  { number: '02', shortLabel: 'SHORTLISTING', icon: 'globe', title: 'Course and university shortlisting', summary: 'Compare programmes by content, fees, entry criteria and fit—not just by the name of a university.', benefits: ['Compare published entry requirements', 'Review programme structure', 'Map fees and deadlines'] },
+  { number: '03', shortLabel: 'APPLICATIONS', icon: 'file', title: 'Application preparation', summary: 'Work through the practical steps of submitting an accurate, organised application to an institution.', benefits: ['Understand document requirements', 'Review application timelines', 'Prepare a submission checklist'] },
+  { number: '04', shortLabel: 'BUDGETING', icon: 'book', title: 'Scholarship and budget planning', summary: 'Consider funding options and the full financial picture, including living expenses and contingency funds.', benefits: ['Research available scholarships', 'Estimate overall study costs', 'Prepare a sustainable budget'] },
+  { number: '05', shortLabel: 'VISA INFORMATION', icon: 'shield', title: 'Visa information and next steps', summary: 'Find official sources for visa requirements and understand the distinction between admission and immigration.', benefits: ['Locate official requirements', 'Identify important deadlines', 'Understand what remains your responsibility'] },
+  { number: '06', shortLabel: 'PRE-DEPARTURE', icon: 'map', title: 'Pre-departure preparation', summary: 'Plan the transition from an offer to arrival, including practical checklists and responsible preparation.', benefits: ['Organise arrival essentials', 'Review accommodation questions', 'Plan for your first weeks'] }
+];

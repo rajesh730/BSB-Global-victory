@@ -1,0 +1,1 @@
+export default function LoadingState(){return <div className="container" role="status" aria-label="Loading content" style={{padding:'100px 0',minHeight:'50vh'}}><div style={{width:'125px',height:'4px',background:'#c11330',marginBottom:'24px'}}/><p style={{color:'#5d6880'}}>Preparing your next chapter…</p></div>}
