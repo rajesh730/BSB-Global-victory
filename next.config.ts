@@ -1,5 +1,7 @@
 import type { NextConfig } from 'next';
 
+const blobBaseUrl=process.env.NEXT_PUBLIC_VERCEL_BLOB_URL?.trim().replace(/\/+$/, '');
+
 const config: NextConfig = {
   // The app is nested inside a wrapper workspace; pin the root to this folder.
   outputFileTracingRoot: __dirname,
@@ -7,7 +9,10 @@ const config: NextConfig = {
   distDir: process.env.NEXT_DIST_DIR || '.next',
   reactStrictMode: true,
   poweredByHeader: false,
-  images: { formats: ['image/avif', 'image/webp'] },
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    remotePatterns: blobBaseUrl ? [new URL(`${blobBaseUrl}/**`)] : []
+  },
   async headers() {
     return [{ source: '/(.*)', headers: [
       { key: 'X-Content-Type-Options', value: 'nosniff' },

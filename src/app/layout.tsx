@@ -3,6 +3,7 @@ import type {ReactNode} from 'react';
 import {SiteShell} from '@/components/layout/SiteShell';
 import {JsonLd} from '@/components/seo/JsonLd';
 import {siteOrigin, isSiteVerified, business, absoluteUrl} from '@/lib/site-config';
+import {photoSrc} from '@/lib/media';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -22,7 +23,7 @@ const organizationData = {
   foundingDate: business.foundingDate,
   url: siteOrigin,
   logo: absoluteUrl('/brand/bsb-global-logo.webp'),
-  image: absoluteUrl('/photos/bsb-global-office-counselling-team-butwal.png'),
+  image: absoluteUrl(photoSrc('bsb-global-office-counselling-team-butwal.png')),
   email: business.email,
   telephone: business.phone.tel,
   address: {'@type': 'PostalAddress', streetAddress: business.address, addressLocality: 'Butwal', addressRegion: 'Lumbini Province', addressCountry: 'NP'},

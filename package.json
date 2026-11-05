@@ -10,11 +10,14 @@
     "lint": "eslint .",
     "check": "npm run typecheck && npm run build",
     "audit": "node scripts/content-audit.mjs",
+    "media:upload": "node --env-file=.env.local scripts/upload-photos-to-vercel-blob.mjs",
+    "media:remove-local": "node --env-file=.env.local scripts/upload-photos-to-vercel-blob.mjs --delete-local",
     "db:migrate": "node --env-file=.env.local scripts/migrate.mjs",
     "deploy": "npx vercel@latest --prod"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",
+    "@vercel/blob": "^2.8.2",
     "next": "15.5.28",
     "react": "19.1.10",
     "react-dom": "19.1.10",
