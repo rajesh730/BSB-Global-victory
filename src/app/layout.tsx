@@ -22,7 +22,7 @@ const organizationData = {
   foundingDate: business.foundingDate,
   url: siteOrigin,
   logo: absoluteUrl('/brand/bsb-global-logo.webp'),
-  image: absoluteUrl('/photos/office-counselling-desk.jpeg'),
+  image: absoluteUrl('/photos/bsb-global-office-counselling-team-butwal.png'),
   email: business.email,
   telephone: business.phone.tel,
   address: {'@type': 'PostalAddress', streetAddress: business.address, addressLocality: 'Butwal', addressRegion: 'Lumbini Province', addressCountry: 'NP'},

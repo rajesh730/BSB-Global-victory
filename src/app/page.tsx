@@ -17,7 +17,7 @@ import {JsonLd} from '@/components/seo/JsonLd';
 
 export const metadata=buildPageMetadata('Study Abroad Consultancy in Butwal','Explore study options in Japan, the UK and South Korea with BSB Global Victory in Butwal. Get course guidance, application support and test preparation.');
 const processSteps=[{number:'01',title:'Tell us your goals',description:'Your background, interests and ambitions come first.'},{number:'02',title:'Compare your options',description:'Look at programmes, requirements, fees and fit.'},{number:'03',title:'Make a clear plan',description:'Create an organised checklist with realistic timelines.'},{number:'04',title:'Prepare for what follows',description:'Think beyond the application to what comes next.'}];
-const lifeAtBsbPhotoIds=['office-team-celebration','office-counselling-desk','classes-classroom-session','departures-airport-students','departures-passport-handover'];
+const lifeAtBsbPhotoIds=['office-team-celebration','office-counselling-desk','classes-classroom-session','departures-airport-students','office-reception-gathering'];
 const faqItems=[
   {question:'Where is BSB Global Victory located?',answer:'Our office is in Milanchowk, Butwal-9, Rupandehi, Nepal. Contact us for directions and current counselling hours.'},
   {question:'Which countries does BSB Global Victory provide study abroad guidance for?',answer:'We provide study abroad guidance for Japan, the United Kingdom and South Korea. We help students compare options by qualifications, interests, language requirements and budget.'},
