@@ -41,12 +41,12 @@ export function Header() {
           {primaryNavigation.map(item => item.href === '/study-abroad'
             ? <div className="nav-dropdown" key={item.href}>
                 <div className="nav-dropdown-controls"><Link href={item.href} className={isCurrentPage(item.href)?'is-active':''} aria-current={isCurrentPage(item.href)?'page':undefined}>Study abroad</Link><button className="dropdown-toggle" aria-label="Toggle study destinations" aria-expanded={isDestinationsMenuOpen} onClick={()=>setIsDestinationsMenuOpen(!isDestinationsMenuOpen)} type="button"><Icon name="chevron-down" size={16}/></button></div>
-                <div className={`nav-submenu${isDestinationsMenuOpen?' submenu-open':''}`}><p>Explore destinations</p>{destinations.map(destination=><Link key={destination.slug} href={`/study-abroad/${destination.slug}`}>{destination.name}<Icon name="arrow-up-right" size={14}/></Link>)}</div>
+                <div className={`nav-submenu${isDestinationsMenuOpen?' submenu-open':''}`}><p>Explore destinations</p>{destinations.map(destination=><Link key={destination.slug} href={`/study-abroad/${destination.slug}`}>{destination.name}</Link>)}</div>
               </div>
             : <Link key={item.href} href={item.href} className={isCurrentPage(item.href)?'is-active':''} aria-current={isCurrentPage(item.href)?'page':undefined}>{item.label}</Link>)}
-          <Link className="button button-primary mobile-nav-cta" href="/contact">Book counselling <Icon name="arrow-up-right" size={17}/></Link>
+          <Link className="button button-primary mobile-nav-cta" href="/contact">Book counselling</Link>
         </nav>
-        <Link className="button button-primary desktop-nav-cta" href="/contact">Book counselling <Icon name="arrow-up-right" size={16}/></Link>
+        <Link className="button button-primary desktop-nav-cta" href="/contact">Book counselling</Link>
         <button type="button" className="menu-toggle" aria-label={isMenuOpen ? 'Close menu' : 'Open menu'} aria-expanded={isMenuOpen} aria-controls="primary-navigation" onClick={()=>setIsMenuOpen(!isMenuOpen)}><Icon name={isMenuOpen?'close':'menu'} size={23}/></button>
       </div>
     </header>

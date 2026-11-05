@@ -4,7 +4,7 @@
 
 **Rendering:** Next.js App Router + React Server Components. Client components are used only for stateful interactions (responsive navigation and contact-draft form) and progressive viewport reveal behaviour. Data and public-facing content are maintained separately from page components.
 
-**Architecture priorities:** predictability, static renderability, content governance, accessibility, low dependency count, clear concerns and no hidden server-side state. The application is a frontend with no database or email-sending endpoint.
+**Architecture priorities:** predictability, static renderability, content governance, accessibility, low dependency count and explicit server boundaries. Public pages remain content-led; optional backend concerns are isolated under `src/server` and server route handlers.
 
 ```text
 Typed content in src/content
@@ -17,7 +17,9 @@ Typed content in src/content
            └── Route metadata/sitemap -> verification gate
 
 Public branding / illustration assets -> next/image -> accessible layout
-Verified public configuration -> site shell + footer + email draft form
+Verified public configuration -> site shell + footer + enquiry form
+
+Optional enquiry API -> server validation -> repository -> local SQLite / Turso libSQL
 ```
 
 ## Content model
@@ -42,7 +44,7 @@ The three focus destinations (Japan, United Kingdom, South Korea) and four artic
 ## Security / privacy boundaries
 
 - Backend secrets MUST be stored only in server environment variables and never use `NEXT_PUBLIC_`.
-- The current form does not submit to any API or store student data, reducing initial data-collection risk.
+- The current form defaults to an email draft. Online submission is disabled until a database, migration and public feature flag are configured.
 - Security response headers cover sniffing, referrer information and unnecessary device permissions.
 - Consider a tested Content-Security-Policy before live deployment; it depends on final integrations and must not break scripts/fonts.
 - Add rate limiting and abuse controls if an API or server action is later added.
@@ -59,5 +61,5 @@ The three focus destinations (Japan, United Kingdom, South Korea) and four artic
 ## Known limitations
 
 - No executable production build was possible within the creation environment due to npm registry DNS failure.
-- There is no production form ingestion, calendar, analytics, map, CRM, database or translated Nepali copy.
+- There is no configured production database, email notification, calendar, analytics, map, CRM, rate-limit provider or translated Nepali copy. The libSQL enquiry path is ready but must be operationally configured before use.
 - Website copy is a professionally drafted starting point and must be verified by the actual business owner.

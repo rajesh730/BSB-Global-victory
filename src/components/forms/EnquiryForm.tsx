@@ -7,9 +7,10 @@ import {Icon} from '@/components/ui/Icon';
 import {business} from '@/lib/site-config';
 
 const enquiryInbox = business.enquiryEmail;
+const isOnlineSubmissionEnabled = process.env.NEXT_PUBLIC_ENQUIRY_API_ENABLED === 'true';
 
-type Enquiry = {name:string;email:string;phone:string;destination:string;studyLevel:string;message:string;consent:boolean};
-const emptyEnquiry:Enquiry={name:'',email:'',phone:'',destination:'',studyLevel:'',message:'',consent:false};
+type Enquiry = {name:string;email:string;phone:string;destination:string;studyLevel:string;message:string;consent:boolean;website:string};
+const emptyEnquiry:Enquiry={name:'',email:'',phone:'',destination:'',studyLevel:'',message:'',consent:false,website:''};
 
 function formatEnquiryDraft(values:Enquiry){
   return [
@@ -30,6 +31,19 @@ export function EnquiryForm(){
   const handleSubmit=async(event:FormEvent<HTMLFormElement>)=>{
     event.preventDefault();
     if(!values.consent){setStatus('Please acknowledge the privacy notice.');return;}
+    if(isOnlineSubmissionEnabled){
+      setStatus('Sending your enquiry…');
+      try {
+        const response=await fetch('/api/enquiries',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(values)});
+        const payload=await response.json() as {message?:string};
+        if(!response.ok) throw new Error(payload.message || 'We could not send your enquiry.');
+        setValues(emptyEnquiry);
+        setStatus('Thank you. Your enquiry has been received. Our team will respond using the details you provided.');
+      } catch (error) {
+        setStatus(error instanceof Error ? error.message : 'We could not send your enquiry. Please use email or telephone instead.');
+      }
+      return;
+    }
     const draft=formatEnquiryDraft(values);
     if(enquiryInbox){
       window.location.href=`mailto:${enquiryInbox}?subject=${encodeURIComponent('BSB Global counselling enquiry')}&body=${encodeURIComponent(draft)}`;
@@ -46,6 +60,7 @@ export function EnquiryForm(){
   return <form className="enquiry-form" onSubmit={handleSubmit}>
     <div className="form-heading"><span>YOUR ENQUIRY / 01</span><h2>Tell us a little about your plans.</h2><p>No document uploads, no pressure. Start with the basics.</p></div>
     <div className="form-fields">
+      <label className="honeypot" aria-hidden="true">Website<input tabIndex={-1} autoComplete="off" name="website" value={values.website} onChange={event=>updateField('website',event.target.value)}/></label>
       <label className="field">Full name <span aria-hidden="true">*</span><input required name="name" autoComplete="name" maxLength={100} placeholder="Your full name" value={values.name} onChange={event=>updateField('name',event.target.value)}/></label>
       <label className="field">Email address <span aria-hidden="true">*</span><input required type="email" name="email" autoComplete="email" maxLength={160} placeholder="you@example.com" value={values.email} onChange={event=>updateField('email',event.target.value)}/></label>
       <label className="field">Phone / WhatsApp (optional)<input type="tel" name="phone" autoComplete="tel" maxLength={32} placeholder="+977 …" value={values.phone} onChange={event=>updateField('phone',event.target.value)}/></label>
@@ -54,8 +69,8 @@ export function EnquiryForm(){
       <label className="field full-field">How can we help? <span aria-hidden="true">*</span><textarea required name="message" rows={5} maxLength={2000} placeholder="Tell us what you want to study and what questions you have…" value={values.message} onChange={event=>updateField('message',event.target.value)}/></label>
     </div>
     <label className="privacy-check"><input type="checkbox" required checked={values.consent} onChange={event=>updateField('consent',event.target.checked)}/><span>I understand this form creates an enquiry draft, and I have read the <Link href="/privacy">privacy information</Link>. <b aria-hidden="true">*</b></span></label>
-    <button className="button button-primary form-submit" type="submit">{enquiryInbox?'Open enquiry in email':'Copy enquiry draft'} <Icon name={enquiryInbox?'arrow-up-right':'copy'} size={18}/></button>
-    <p className="form-disclosure">{enquiryInbox?'Your email application will handle delivery. The website does not store or transmit your message.':'Preview mode: this form does not send or save enquiries. A verified email address or secure backend is needed for live submissions.'}</p>
+    <button className="button button-primary form-submit" type="submit">{isOnlineSubmissionEnabled?'Send enquiry':enquiryInbox?'Open enquiry in email':'Copy enquiry draft'} {!isOnlineSubmissionEnabled&&!enquiryInbox&&<Icon name="copy" size={18}/>}</button>
+    <p className="form-disclosure">{isOnlineSubmissionEnabled?'Your enquiry is sent securely to BSB Global for a response. Do not include passport copies, banking details or other sensitive documents.':enquiryInbox?'Your email application will handle delivery. The website does not store or transmit your message.':'Preview mode: this form does not send or save enquiries. A verified email address or secure backend is needed for live submissions.'}</p>
     <p className="form-status" role="status" aria-live="polite">{status}</p>
   </form>;
 }

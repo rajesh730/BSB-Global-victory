@@ -25,7 +25,7 @@ const organizationData = {
   image: absoluteUrl('/photos/office-counselling-desk.jpeg'),
   email: business.email,
   telephone: business.phone.tel,
-  address: {'@type': 'PostalAddress', streetAddress: 'Milanchowk, Butwal-9', addressLocality: 'Butwal', addressRegion: 'Lumbini Province', addressCountry: 'NP'},
+  address: {'@type': 'PostalAddress', streetAddress: business.address, addressLocality: 'Butwal', addressRegion: 'Lumbini Province', addressCountry: 'NP'},
   areaServed: 'NP',
   contactPoint: business.phones.map(contactPhone => ({'@type': 'ContactPoint', telephone: contactPhone.tel, contactType: 'customer service', areaServed: 'NP', availableLanguage: ['en', 'ne']}))
 };

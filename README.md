@@ -2,7 +2,7 @@
 
 A designed, content-driven education consultancy website for **BSB Global, Nepal**. This is a professional, modular frontend built with **Next.js 15 App Router, React 19, TypeScript and modern CSS**. It uses the original BSB Global logo and illustrated assets from the approved design direction.
 
-This is **not a deployed website**, **not a backend/CRM**, and not a representation that BSB Global’s unverified services and business details are already approved.
+This is **not a deployed website** or a complete CRM, and not a representation that BSB Global’s unverified services and business details are already approved. It includes a backend-ready enquiry boundary that can use local SQLite in development and Turso/libSQL in production when explicitly configured.
 
 ## Quick start
 
@@ -41,6 +41,8 @@ npm run start
 | `/gallery` | Office, class and departure photos |
 | `/image-credits` | Licence credits for stock photos |
 | `/privacy`, `/terms` | Draft privacy and terms notices |
+| `/admin/login` | Private administrator sign-in |
+| `/admin`, `/admin/enquiries` | Protected enquiry dashboard and workflow |
 | `/sitemap.xml`, `/robots.txt` | Auto-generated metadata routes |
 
 Dynamic country and article routes use `generateStaticParams`, so content is pre-renderable and SEO-friendly.
@@ -95,12 +97,24 @@ NEXT_PUBLIC_WHATSAPP_NUMBER=
 
 ## Enquiries
 
-`src/components/forms/EnquiryForm.tsx` is intentionally a frontend-only workflow.
+`src/components/forms/EnquiryForm.tsx` defaults to a safe email-draft workflow. It can submit to the server-side enquiry API only after the database has been configured and `NEXT_PUBLIC_ENQUIRY_API_ENABLED=true`.
 
-- The form opens a **prefilled email draft** addressed to `business.enquiryEmail` (inquiry@bsbglobalvictory.com) that the visitor must send using their email app.
+- By default, the form opens a **prefilled email draft** addressed to `business.enquiryEmail` (inquiry@bsbglobalvictory.com) that the visitor must send using their email app.
 - If `enquiryEmail` is ever emptied, it falls back to a **copy-to-clipboard enquiry draft** and explicitly says nothing was sent.
-- It does **not** upload documents, persist personal information, send messages to a CRM, or falsely display “enquiry submitted.”
-- For a production inbox use an actual verified backend (such as a Next.js server action or route handler) with server-side validation, bot controls, rate limiting, logging, retention and notifications. Do not send emails using exposed client-side credentials.
+- It does **not** upload documents. When online submissions are disabled, it does not persist personal information or falsely display “enquiry submitted.”
+- The optional `POST /api/enquiries` route validates input, uses parameterised SQL and stores enquiries in libSQL. Configure a production rate limit, retention policy, response ownership and monitoring before enabling it. Do not send emails using exposed client-side credentials.
+
+See [Database and backend architecture](docs/DATABASE-ARCHITECTURE.md) for local SQLite and Turso setup, migration rules and security boundaries.
+
+## Admin dashboard
+
+`/admin` is a protected workspace for reviewing counselling enquiries and marking them as new, contacted, in progress or closed. It is deliberately separate from the public website chrome and is never indexed.
+
+1. Set `ADMIN_LOGIN_ID`, `ADMIN_PASSWORD` and a unique 32+ character `ADMIN_SESSION_SECRET` in `.env.local` (or in your deployment environment).
+2. Run `npm run db:migrate` to create the enquiry workflow fields.
+3. Open `http://localhost:3000/admin/login` and sign in with the configured login ID and password.
+
+Admin sessions are signed and stored in HTTP-only cookies. Credentials and Turso tokens must remain server-only; do not add any of them to variables beginning with `NEXT_PUBLIC_`. The local login rate limit is a useful first layer, but production should also have platform-level rate limiting before the dashboard is made internet-accessible.
 
 ## Deploy from GitHub (recommended)
 
