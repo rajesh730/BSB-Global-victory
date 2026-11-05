@@ -1,0 +1,7 @@
+import type {Metadata} from 'next';
+import Link from 'next/link';
+import {AdminPageHeader} from '@/components/admin/AdminPageHeader';
+import {listBlogPosts} from '@/server/blog/repository';
+
+export const metadata:Metadata={title:'Admin blog',robots:{index:false,follow:false}};
+export default async function AdminBlogPage() {let posts:Awaited<ReturnType<typeof listBlogPosts>>=[];let ready=true;try {posts=await listBlogPosts();} catch {ready=false;}return <><AdminPageHeader eyebrow="Content management" title="Blog posts"><Link href="/admin/blog/new" className="admin-primary-action">Write a post</Link></AdminPageHeader>{!ready?<div className="admin-alert"><strong>Database setup needed.</strong> Run <code>npm run db:migrate</code> before creating blog posts.</div>:<section className="admin-panel"><div className="admin-panel-head"><div><p>Resources</p><h2>Posts</h2></div><span>{posts.length} total</span></div>{posts.length?<div className="admin-post-list">{posts.map(post=><Link key={post.id} href={`/admin/blog/${post.id}`}><div><span className={`admin-post-status ${post.status}`}>{post.status}</span><strong>{post.title}</strong><small>{post.category} · /resources/{post.slug}</small></div><span>Edit</span></Link>)}</div>:<div className="admin-empty"><h2>Start the reading room</h2><p>Create a helpful guide, save it as a draft, then publish it when it is ready.</p></div>}</section>}</>}

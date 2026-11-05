@@ -24,6 +24,8 @@ export type Article = {
   description: string;
   intro: string;
   sections: ArticleSection[];
+  body?: string;
+  coverImage?: {src:string;alt:string};
 };
 
 export type PhotoCategory = 'office' | 'classes' | 'departures';

@@ -17,7 +17,8 @@ const client=createClient({url,...(authToken?{authToken}:{})});
 await client.execute('CREATE TABLE IF NOT EXISTS schema_migrations (id TEXT PRIMARY KEY NOT NULL, applied_at TEXT NOT NULL)');
 const migrations=[
   {id:'001_initial',file:'src/server/db/migrations/001_initial.sql'},
-  {id:'002_enquiry_workflow',file:'src/server/db/migrations/002_enquiry_workflow.sql'}
+  {id:'002_enquiry_workflow',file:'src/server/db/migrations/002_enquiry_workflow.sql'},
+  {id:'003_blog_posts',file:'src/server/db/migrations/003_blog_posts.sql'}
 ];
 for (const migration of migrations) {
   const applied=await client.execute({sql:'SELECT id FROM schema_migrations WHERE id = ?',args:[migration.id]});
