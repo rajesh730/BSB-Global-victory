@@ -38,7 +38,7 @@ export function EnquiryForm(){
         const payload=await response.json() as {message?:string};
         if(!response.ok) throw new Error(payload.message || 'We could not send your enquiry.');
         setValues(emptyEnquiry);
-        setStatus('Thank you. Your enquiry has been received. Our team will respond using the details you provided.');
+        setStatus('Thank you. Your enquiry has been sent.');
       } catch (error) {
         setStatus(error instanceof Error ? error.message : 'We could not send your enquiry. Please use email or telephone instead.');
       }
@@ -47,7 +47,7 @@ export function EnquiryForm(){
     const draft=formatEnquiryDraft(values);
     if(enquiryInbox){
       window.location.href=`mailto:${enquiryInbox}?subject=${encodeURIComponent('BSB Global counselling enquiry')}&body=${encodeURIComponent(draft)}`;
-      setStatus('Your email app should open with the enquiry draft. Please review and send it there.');
+      setStatus('Your email app is ready. Please review and send your enquiry.');
       return;
     }
     try{
@@ -68,9 +68,9 @@ export function EnquiryForm(){
       <label className="field full-field">Intended study level<select name="studyLevel" value={values.studyLevel} onChange={event=>updateField('studyLevel',event.target.value)}><option value="">Not sure yet</option><option>Undergraduate</option><option>Postgraduate</option><option>Diploma / vocational</option><option>Language programme</option><option>Other</option></select></label>
       <label className="field full-field">How can we help? <span aria-hidden="true">*</span><textarea required name="message" rows={5} maxLength={2000} placeholder="Tell us what you want to study and what questions you have…" value={values.message} onChange={event=>updateField('message',event.target.value)}/></label>
     </div>
-    <label className="privacy-check"><input type="checkbox" required checked={values.consent} onChange={event=>updateField('consent',event.target.checked)}/><span>I understand this form creates an enquiry draft, and I have read the <Link href="/privacy">privacy information</Link>. <b aria-hidden="true">*</b></span></label>
+    <label className="privacy-check"><input type="checkbox" required checked={values.consent} onChange={event=>updateField('consent',event.target.checked)}/><span>I agree to the <Link href="/privacy">privacy policy</Link>. <b aria-hidden="true">*</b></span></label>
     <button className="button button-primary form-submit" type="submit">{isOnlineSubmissionEnabled?'Send enquiry':enquiryInbox?'Open enquiry in email':'Copy enquiry draft'} {!isOnlineSubmissionEnabled&&!enquiryInbox&&<Icon name="copy" size={18}/>}</button>
-    <p className="form-disclosure">{isOnlineSubmissionEnabled?'Your enquiry is sent securely to BSB Global for a response. Do not include passport copies, banking details or other sensitive documents.':enquiryInbox?'Your email application will handle delivery. The website does not store or transmit your message.':'Preview mode: this form does not send or save enquiries. A verified email address or secure backend is needed for live submissions.'}</p>
+    <p className="form-disclosure">{isOnlineSubmissionEnabled?'We will use your details only to respond to your enquiry. Do not send sensitive documents.':enquiryInbox?'Your email app will send your enquiry.':'Your enquiry is not sent until a secure contact method is available.'}</p>
     <p className="form-status" role="status" aria-live="polite">{status}</p>
   </form>;
 }
