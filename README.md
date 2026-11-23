@@ -118,6 +118,15 @@ See [Database and backend architecture](docs/DATABASE-ARCHITECTURE.md) for local
    Image uploads (blog and gallery) need a **public** Vercel Blob store connected to the project (`BLOB_READ_WRITE_TOKEN`). The store URL is derived automatically; see [Vercel Blob media](docs/VERCEL-BLOB-MEDIA.md).
 3. Open `http://localhost:3000/admin/login` and sign in with the configured login ID and password.
 
+### Blog posts
+
+Posts written at `/admin/blog` appear on `/resources`, the homepage reading list, the sitemap and each post's own `/resources/[slug]` page as soon as they are published. A published post with the same slug as a built-in guide replaces it.
+
+- **Formatting:** `## Heading` (listed in the article's sidebar), `### Subheading`, `- bullets`, `1. numbered lists`, `> notes`, `**bold**` and `[links](https://…)`. Posts are rendered as React elements, never raw HTML, and only `https`, `mailto`, `tel` and same-site links are made clickable.
+- **Images:** the feature image and images inside the article are uploaded to the public Vercel Blob store (`blog/` folder). Only images from that store or `/public` are accepted.
+- **Drafts and preview:** drafts are visible only in the dashboard; use **Preview saved version** to check a post before publishing.
+- **Delete:** deleting a post, or replacing or removing an image, also deletes the Blob files no other post or gallery item still uses.
+
 Admin sessions are signed and stored in HTTP-only cookies. Credentials and Turso tokens must remain server-only; do not add any of them to variables beginning with `NEXT_PUBLIC_`. The local login rate limit is a useful first layer, but production should also have platform-level rate limiting before the dashboard is made internet-accessible.
 
 ## Deploy from GitHub (recommended)

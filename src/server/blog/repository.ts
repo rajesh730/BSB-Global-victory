@@ -45,3 +45,8 @@ export async function updateBlogPost(id:string,input:BlogPostInput) {
   const result=await getDatabaseClient().execute({sql:`UPDATE blog_posts SET slug=?,title=?,category=?,excerpt=?,body=?,cover_image_url=?,cover_image_alt=?,status=?,published_at=?,updated_at=? WHERE id=?`,args:[input.slug,input.title,input.category,input.excerpt,input.body,input.coverImageUrl || null,input.coverImageAlt || null,input.status,publishedAt,now,id]});
   return result.rowsAffected>0;
 }
+
+export async function deleteBlogPost(id:string) {
+  const result=await getDatabaseClient().execute({sql:'DELETE FROM blog_posts WHERE id = ?',args:[id]});
+  return result.rowsAffected>0;
+}

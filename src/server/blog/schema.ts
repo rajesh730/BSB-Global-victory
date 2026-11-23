@@ -1,5 +1,6 @@
 import {z} from 'zod';
 import {isAllowedSiteImage} from '@/lib/blob-store';
+import {bodyImageUrls} from '@/lib/post-body';
 
 const slug=z.string().trim().min(3).max(100).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/,'Use lowercase words separated by hyphens.');
 const coverImage=z.string().trim().max(2048).refine(isAllowedSiteImage,'Upload the feature image through this dashboard.').optional().or(z.literal(''));
@@ -15,6 +16,7 @@ export const blogPostSchema=z.object({
   status:z.enum(['draft','published'])
 }).superRefine((value,context)=>{
   if (value.coverImageUrl && !value.coverImageAlt) context.addIssue({code:'custom',path:['coverImageAlt'],message:'Add descriptive alternative text for the feature image.'});
+  if (bodyImageUrls(value.body).some(url=>!isAllowedSiteImage(url))) context.addIssue({code:'custom',path:['body'],message:'Images in the article must be uploaded through this dashboard.'});
 });
 
 export type BlogPostInput=z.infer<typeof blogPostSchema>;

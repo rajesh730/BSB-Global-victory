@@ -8,7 +8,7 @@ import {SectionHeading} from '@/components/sections/SectionHeading';
 import {TextLink} from '@/components/ui/TextLink';
 import {Icon} from '@/components/ui/Icon';
 import {destinations} from '@/content/destinations';
-import {articles} from '@/content/articles';
+import {listResourceArticles} from '@/server/blog/articles';
 import {services} from '@/content/services';
 import {FeaturedGallerySection} from '@/components/sections/FeaturedGallerySection';
 import {buildPageMetadata,isSiteVerified} from '@/lib/site-config';
@@ -36,7 +36,7 @@ export default async function HomePage() {
     <section className="section section-tint"><div className="container resource-editorial"><div><Eyebrow>Test preparation</Eyebrow><h2>Language classes and test preparation in Butwal.</h2></div><div><p className="lead">Ask about current IELTS, PTE Academic, JLPT, NAT-TEST and TOPIK classes, batch timings and fees. Your course—not a generic score target—should determine the test you prepare for.</p><TextLink href="/test-preparation">Explore test preparation</TextLink></div></div></section>
     <FeaturedGallerySection/>
     <section className="section-short"><div className="container"><div className="feature-banner"><div><Eyebrow light>A thoughtful first step</Eyebrow><h2>Don’t rush the destination.<br/><span>Get the direction right.</span></h2><p>Course fit. Realistic budgets. Current requirements. The questions you ask today can change what is possible tomorrow.</p><ButtonLink href="/resources" variant="light">Read our student guides</ButtonLink></div></div></div></section>
-    <section className="section"><div className="container"><SectionHeading eyebrow="Notes for the journey" title="Useful reading before you apply." href="/resources" linkLabel="View all resources"/><div className="article-grid">{articles.slice(0,3).map((article,position)=><ArticleCard key={article.slug} article={article} index={position}/>)}</div></div></section>
+    <section className="section"><div className="container"><SectionHeading eyebrow="Notes for the journey" title="Useful reading before you apply." href="/resources" linkLabel="View all resources"/><div className="article-grid">{(await listResourceArticles()).slice(0,3).map((article,position)=><ArticleCard key={article.slug} article={article} index={position}/>)}</div></div></section>
     <section className="section section-cream"><div className="container faq-layout"><div><Eyebrow>Good questions to ask</Eyebrow><h2>Study abroad counselling in Butwal.</h2><p className="lead">Clear answers help you make informed decisions.</p></div><div className="faq-stack">{faqItems.map(item=><details key={item.question}><summary>{item.question}<Icon name="chevron-down" size={20}/></summary><p>{item.answer}</p></details>)}</div></div></section>
     <CallToActionBand/>
   </>;

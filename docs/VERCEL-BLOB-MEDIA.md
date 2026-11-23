@@ -8,6 +8,8 @@ Website images (gallery, homepage mosaic, blog covers) are shown to every visito
 
 Once a store is connected, dashboard uploads work automatically. The app derives the store’s public URL from `BLOB_STORE_ID` or `BLOB_READ_WRITE_TOKEN` (see `src/lib/blob-store.ts`), and only images from that store or from `/public` are accepted.
 
+Blog uploads are stored under `blog/<year>/`, gallery uploads under `gallery/<year>/`. When a post is deleted, or one of its images is replaced or removed, the app deletes that `blog/` file from the store unless another post or gallery item still references it. Cleanup is best effort: a failure is logged and never blocks the save.
+
 ## One-time setup
 
 1. In the Vercel project, open **Storage** and create a **public** Blob store. Connect it to this project, and disconnect any private store that was connected for website images.

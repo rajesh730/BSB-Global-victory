@@ -814,3 +814,34 @@ p:last-child { margin-bottom:0; }
   .principles-grid p { border-left:0; padding:0; }
   .article-sidebar nav { grid-template-columns:1fr; }
 }
+
+/* Dashboard-written blog posts */
+.article-managed-body h2 { scroll-margin-top:135px; margin:46px 0 16px; padding-top:27px; border-top:1px solid var(--line); }
+.article-managed-body h2:first-child { margin-top:0; }
+.article-managed-body h3 { scroll-margin-top:135px; margin:32px 0 12px; color:var(--navy); font-size:1.2rem; }
+.article-managed-body ul,.article-managed-body ol { margin:0 0 24px; padding-left:1.3em; color:#4f5c71; line-height:1.85; }
+.article-managed-body li { margin:6px 0; }
+.article-managed-body li::marker { color:var(--brand-red); }
+.article-managed-body a { color:var(--brand-blue); font-weight:600; text-underline-offset:3px; }
+.article-managed-body strong { color:var(--ink); }
+.article-managed-body blockquote { margin:28px 0; padding:18px 23px; background:#f1f3fa; border-left:3px solid var(--brand-red); }
+.article-managed-body blockquote p { margin:0; color:#35405a; }
+.article-inline-image { margin:32px 0; }
+.article-inline-image>div { position:relative; aspect-ratio:16/9; overflow:hidden; background:#eff1f8; }
+.article-inline-image img { object-fit:contain; }
+.article-inline-image figcaption { margin-top:9px; color:#737e93; font-size:.78rem; line-height:1.5; }
+.admin-post-links { display:flex; flex-wrap:wrap; gap:18px; margin-bottom:22px; }
+.admin-post-links a { color:var(--brand-blue); font:800 .74rem var(--font-heading); text-decoration:none; }
+.admin-post-links a:hover { text-decoration:underline; }
+.admin-format-help { margin:19px 0 0; padding:14px 18px; border:1px solid #dfe4ef; background:#fafbfd; font-size:.78rem; color:#4f5c71; }
+.admin-format-help summary { cursor:pointer; color:var(--navy); font:800 .74rem var(--font-heading); }
+.admin-format-help dl { display:grid; grid-template-columns:minmax(150px,auto) 1fr; gap:8px 18px; margin:14px 0 2px; }
+.admin-format-help dd { margin:0; }
+.admin-post-preview { max-width:860px; padding:32px 36px 40px; }
+.admin-post-preview-meta { margin:0 0 6px; color:#737e93; font-size:.74rem; }
+.admin-post-preview-excerpt { margin:0 0 26px; color:var(--ink); font-size:1.05rem; line-height:1.7; }
+.admin-post-preview>img { width:100%; height:auto; margin-bottom:34px; border:1px solid var(--line); }
+@media (max-width:780px) {
+  .admin-format-help dl { grid-template-columns:1fr; }
+  .admin-post-preview { padding:23px 20px 30px; }
+}

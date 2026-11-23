@@ -28,7 +28,7 @@ Public page render
 - `src/app/api/`: HTTP route handlers only.
 - `src/server/db/`: connection configuration, client and SQL migrations.
 - `src/server/enquiries/`: enquiry validation and persistence. Future domains should have their own directory, for example `src/server/users/` or `src/server/appointments/`.
-- `src/server/blog/`: managed blog posts.
+- `src/server/blog/`: managed blog posts (`repository.ts`), the merged list of public resources (`articles.ts`) and Blob image cleanup (`images.ts`). Post formatting is parsed by `src/lib/post-body.ts` and rendered by `src/components/ui/PostBody.tsx`.
 - `src/server/site/`: editable page copy (`site_pages`), office details (`site_settings`, single row `id = 1`) and gallery images (`gallery_items`). `defaults.ts` holds the fallback content; a page with no saved row shows the default.
 - `src/server/auth/`: administrator environment configuration, signed sessions and API guards.
 - `scripts/`: operator commands, including migrations.
