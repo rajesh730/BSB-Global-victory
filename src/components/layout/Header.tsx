@@ -4,11 +4,12 @@ import {useEffect, useState} from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import {usePathname} from 'next/navigation';
-import {business, primaryNavigation} from '@/lib/site-config';
+import {primaryNavigation} from '@/lib/site-config';
 import {destinations} from '@/content/destinations';
 import {Icon} from '@/components/ui/Icon';
+import type {PublicBusinessProfile} from '@/server/site/repository';
 
-export function Header() {
+export function Header({business}:{business:PublicBusinessProfile}) {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDestinationsMenuOpen, setIsDestinationsMenuOpen] = useState(false);

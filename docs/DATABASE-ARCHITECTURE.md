@@ -15,8 +15,12 @@ Browser form
 Admin browser
   -> signed HTTP-only session
   -> /admin and protected admin API routes
-  -> enquiry repository
+  -> enquiry, blog and site repositories
   -> local SQLite in development or Turso in production
+
+Public page render
+  -> site repository (page copy, office details, gallery)
+  -> database row if present, otherwise defaults in src/server/site/defaults.ts
 ```
 
 ## Folders
@@ -24,6 +28,8 @@ Admin browser
 - `src/app/api/`: HTTP route handlers only.
 - `src/server/db/`: connection configuration, client and SQL migrations.
 - `src/server/enquiries/`: enquiry validation and persistence. Future domains should have their own directory, for example `src/server/users/` or `src/server/appointments/`.
+- `src/server/blog/`: managed blog posts.
+- `src/server/site/`: editable page copy (`site_pages`), office details (`site_settings`, single row `id = 1`) and gallery images (`gallery_items`). `defaults.ts` holds the fallback content; a page with no saved row shows the default.
 - `src/server/auth/`: administrator environment configuration, signed sessions and API guards.
 - `scripts/`: operator commands, including migrations.
 - `src/components/`, `src/content/` and `src/app/`: presentation and public content. They must not query the database directly.

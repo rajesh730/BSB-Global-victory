@@ -1,0 +1,14 @@
+'use client';
+
+import {useState,type FormEvent} from 'react';
+import {useRouter} from 'next/navigation';
+import type {PublicBusinessSettings} from '@/server/site/repository';
+
+type Field=Exclude<keyof PublicBusinessSettings,'updatedAt'>;
+export function BusinessSettingsForm({settings}:{settings:PublicBusinessSettings}){
+  const router=useRouter();const [values,setValues]=useState<Omit<PublicBusinessSettings,'updatedAt'>>(settings);const [message,setMessage]=useState('');const [saving,setSaving]=useState(false);
+  const update=(field:Field,value:string)=>setValues(current=>({...current,[field]:value}));
+  const submit=async(event:FormEvent<HTMLFormElement>)=>{event.preventDefault();setSaving(true);setMessage('');try{const response=await fetch('/api/admin/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(values)});const result=await response.json() as {message?:string};if(!response.ok)throw new Error(result.message || 'Unable to save office details.');setMessage('Saved. Public contact details and local business data are updated.');router.refresh();}catch(error){setMessage(error instanceof Error?error.message:'Unable to save office details.');}finally{setSaving(false);}};
+  const input=(label:string,field:Field,options:{type?:string;full?:boolean;help?:string}={})=><label className={options.full?'admin-form-full':''}>{label}<input type={options.type || 'text'} required={field!=='whatsapp'&&field!=='directionsUrl'&&field!=='openingHours'} value={values[field]} onChange={event=>update(field,event.target.value)}/>{options.help&&<small>{options.help}</small>}</label>;
+  return <form className="admin-post-form" onSubmit={submit}><div className="admin-post-grid">{input('Public business name','name')}{input('Legal business name','legalName')}{input('Tagline','descriptor')}{input('Office address','address',{full:true})}{input('Location','location')}{input('Office directions URL','directionsUrl',{type:'url',help:'Use the verified Google Maps or directions link.'})}{input('General email','generalEmail',{type:'email'})}{input('Counselling email','enquiryEmail',{type:'email'})}{input('Office display number','officePhone')}{input('Office call number','officeTel',{help:'Use international format, for example +977…'})}{input('Mobile display number','mobilePhone')}{input('Mobile call number','mobileTel',{help:'Use international format, for example +977…'})}{input('WhatsApp number','whatsapp',{help:'International format without spaces.'})}<label className="admin-form-full">Opening hours<textarea rows={4} maxLength={1000} value={values.openingHours} onChange={event=>update('openingHours',event.target.value)}/><small>Only publish confirmed office hours.</small></label></div><div className="admin-form-actions"><button type="submit" className="admin-primary-action" disabled={saving}>{saving?'Saving…':'Save office details'}</button><p role="status">{message}</p></div></form>;
+}

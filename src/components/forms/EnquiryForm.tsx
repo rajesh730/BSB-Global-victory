@@ -4,9 +4,6 @@ import {useState, type FormEvent} from 'react';
 import Link from 'next/link';
 import {destinations} from '@/content/destinations';
 import {Icon} from '@/components/ui/Icon';
-import {business} from '@/lib/site-config';
-
-const enquiryInbox = business.enquiryEmail;
 const isOnlineSubmissionEnabled = process.env.NEXT_PUBLIC_ENQUIRY_API_ENABLED === 'true';
 
 type Enquiry = {name:string;email:string;phone:string;destination:string;studyLevel:string;message:string;consent:boolean;website:string};
@@ -24,7 +21,7 @@ function formatEnquiryDraft(values:Enquiry){
   ].join('\n');
 }
 
-export function EnquiryForm(){
+export function EnquiryForm({enquiryEmail}:{enquiryEmail:string}){
   const [values,setValues]=useState<Enquiry>(emptyEnquiry);
   const [status,setStatus]=useState('');
   const updateField=(field:keyof Enquiry,value:string|boolean)=>{setValues(previous=>({...previous,[field]:value}));setStatus('');};
@@ -45,8 +42,8 @@ export function EnquiryForm(){
       return;
     }
     const draft=formatEnquiryDraft(values);
-    if(enquiryInbox){
-      window.location.href=`mailto:${enquiryInbox}?subject=${encodeURIComponent('BSB Global counselling enquiry')}&body=${encodeURIComponent(draft)}`;
+    if(enquiryEmail){
+      window.location.href=`mailto:${enquiryEmail}?subject=${encodeURIComponent('BSB Global counselling enquiry')}&body=${encodeURIComponent(draft)}`;
       setStatus('Your email app is ready. Please review and send your enquiry.');
       return;
     }
@@ -69,8 +66,8 @@ export function EnquiryForm(){
       <label className="field full-field">How can we help? <span aria-hidden="true">*</span><textarea required name="message" rows={5} maxLength={2000} placeholder="Tell us what you want to study and what questions you have…" value={values.message} onChange={event=>updateField('message',event.target.value)}/></label>
     </div>
     <label className="privacy-check"><input type="checkbox" required checked={values.consent} onChange={event=>updateField('consent',event.target.checked)}/><span>I agree to the <Link href="/privacy">privacy policy</Link>. <b aria-hidden="true">*</b></span></label>
-    <button className="button button-primary form-submit" type="submit">{isOnlineSubmissionEnabled?'Send enquiry':enquiryInbox?'Open enquiry in email':'Copy enquiry draft'} {!isOnlineSubmissionEnabled&&!enquiryInbox&&<Icon name="copy" size={18}/>}</button>
-    <p className="form-disclosure">{isOnlineSubmissionEnabled?'We will use your details only to respond to your enquiry. Do not send sensitive documents.':enquiryInbox?'Your email app will send your enquiry.':'Your enquiry is not sent until a secure contact method is available.'}</p>
+    <button className="button button-primary form-submit" type="submit">{isOnlineSubmissionEnabled?'Send enquiry':enquiryEmail?'Open enquiry in email':'Copy enquiry draft'} {!isOnlineSubmissionEnabled&&!enquiryEmail&&<Icon name="copy" size={18}/>}</button>
+    <p className="form-disclosure">{isOnlineSubmissionEnabled?'We will use your details only to respond to your enquiry. Do not send sensitive documents.':enquiryEmail?'Your email app will send your enquiry.':'Your enquiry is not sent until a secure contact method is available.'}</p>
     <p className="form-status" role="status" aria-live="polite">{status}</p>
   </form>;
 }

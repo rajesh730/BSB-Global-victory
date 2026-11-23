@@ -34,6 +34,8 @@ npm run start
 | `/study-abroad/[slug]` | Japan, United Kingdom and South Korea guides with licensed photos |
 | `/services` | Six service areas and transparent scope |
 | `/test-preparation` | English test requirements and preparation planning |
+| `/education-consultancy-butwal` | Local landing page: what a Butwal counselling session covers, with FAQ |
+| `/language-classes-butwal` | Local landing page for IELTS, PTE, Japanese and Korean classes |
 | `/about` | Mission, principles and company-credential placeholders |
 | `/resources` | Student guides index |
 | `/resources/[slug]` | Four fully written editorial resources |
@@ -43,9 +45,10 @@ npm run start
 | `/privacy`, `/terms` | Draft privacy and terms notices |
 | `/admin/login` | Private administrator sign-in |
 | `/admin`, `/admin/enquiries` | Protected enquiry dashboard and workflow |
+| `/admin/pages`, `/admin/settings`, `/admin/gallery`, `/admin/blog` | Protected editors for page copy and search snippets, office details, gallery images and blog posts |
 | `/sitemap.xml`, `/robots.txt` | Auto-generated metadata routes |
 
-Dynamic country and article routes use `generateStaticParams`, so content is pre-renderable and SEO-friendly.
+Public pages render on request (the root layout is `force-dynamic`) so changes saved in the dashboard appear without a redeploy. If the database is unavailable, every page falls back to the defaults in `src/server/site/defaults.ts`.
 
 ## Folder architecture
 
@@ -108,10 +111,11 @@ See [Database and backend architecture](docs/DATABASE-ARCHITECTURE.md) for local
 
 ## Admin dashboard
 
-`/admin` is a protected workspace for reviewing counselling enquiries and marking them as new, contacted, in progress or closed. It is deliberately separate from the public website chrome and is never indexed.
+`/admin` is a protected workspace for reviewing counselling enquiries (new, contacted, in progress or closed) and for managing website content: page headings and search snippets, office contact details and hours, the gallery and homepage photo mosaic, and blog posts. It is deliberately separate from the public website chrome and is never indexed.
 
 1. Set `ADMIN_LOGIN_ID`, `ADMIN_PASSWORD` and a unique 32+ character `ADMIN_SESSION_SECRET` in `.env.local` (or in your deployment environment).
-2. Run `npm run db:migrate` to create the enquiry workflow fields.
+2. Run `npm run db:migrate` to create the enquiry, blog and site-content tables.
+   Image uploads (blog and gallery) need a **public** Vercel Blob store connected to the project (`BLOB_READ_WRITE_TOKEN`). The store URL is derived automatically; see [Vercel Blob media](docs/VERCEL-BLOB-MEDIA.md).
 3. Open `http://localhost:3000/admin/login` and sign in with the configured login ID and password.
 
 Admin sessions are signed and stored in HTTP-only cookies. Credentials and Turso tokens must remain server-only; do not add any of them to variables beginning with `NEXT_PUBLIC_`. The local login rate limit is a useful first layer, but production should also have platform-level rate limiting before the dashboard is made internet-accessible.

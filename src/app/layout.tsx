@@ -4,8 +4,12 @@ import {SiteShell} from '@/components/layout/SiteShell';
 import {JsonLd} from '@/components/seo/JsonLd';
 import {siteOrigin, isSiteVerified, business, absoluteUrl} from '@/lib/site-config';
 import {photoSrc} from '@/lib/media';
+import {getBusinessProfile} from '@/server/site/repository';
 import './globals.css';
 
+// Office details and page copy are managed from the dashboard. Render them at
+// request time so a published change is visible without a redeploy.
+export const dynamic='force-dynamic';
 export const metadata: Metadata = {
   metadataBase: new URL(siteOrigin),
   title: {default:'BSB Global | Study Abroad Consultancy in Butwal, Nepal', template:'%s | BSB Global'},
@@ -31,6 +35,8 @@ const organizationData = {
   contactPoint: business.phones.map(contactPhone => ({'@type': 'ContactPoint', telephone: contactPhone.tel, contactType: 'customer service', areaServed: 'NP', availableLanguage: ['en', 'ne']}))
 };
 
-export default function RootLayout({children}: {children:ReactNode}) {
-  return <html lang="en" data-scroll-behavior="smooth"><body>{isSiteVerified && <JsonLd data={organizationData}/>}<SiteShell>{children}</SiteShell></body></html>;
+export default async function RootLayout({children}: {children:ReactNode}) {
+  const liveBusiness=await getBusinessProfile();
+  const liveOrganizationData={...organizationData,name:liveBusiness.name,legalName:liveBusiness.legalName,email:liveBusiness.email,telephone:liveBusiness.phone.tel,address:{'@type':'PostalAddress',streetAddress:liveBusiness.address,addressLocality:'Butwal',addressRegion:'Lumbini Province',addressCountry:'NP'},contactPoint:liveBusiness.phones.map(contactPhone=>({'@type':'ContactPoint',telephone:contactPhone.tel,contactType:'customer service',areaServed:'NP',availableLanguage:['en','ne']}))};
+  return <html lang="en" data-scroll-behavior="smooth"><body>{isSiteVerified && <JsonLd data={liveOrganizationData}/>}<SiteShell business={liveBusiness}>{children}</SiteShell></body></html>;
 }

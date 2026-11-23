@@ -1,6 +1,8 @@
 import type { NextConfig } from 'next';
 
-const blobBaseUrl=process.env.NEXT_PUBLIC_VERCEL_BLOB_URL?.trim().replace(/\/+$/, '');
+import {blobStoreOrigin} from './src/lib/blob-store';
+
+const blobOrigin=blobStoreOrigin();
 
 const config: NextConfig = {
   // The app is nested inside a wrapper workspace; pin the root to this folder.
@@ -11,7 +13,8 @@ const config: NextConfig = {
   poweredByHeader: false,
   images: {
     formats: ['image/avif', 'image/webp'],
-    remotePatterns: blobBaseUrl ? [new URL(`${blobBaseUrl}/**`)] : []
+    // Only this project's own Blob store, so the optimiser cannot be pointed at other hosts.
+    remotePatterns: blobOrigin ? [new URL(`${blobOrigin}/**`)] : []
   },
   async headers() {
     return [{ source: '/(.*)', headers: [

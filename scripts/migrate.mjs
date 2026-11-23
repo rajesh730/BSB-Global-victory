@@ -18,7 +18,8 @@ await client.execute('CREATE TABLE IF NOT EXISTS schema_migrations (id TEXT PRIM
 const migrations=[
   {id:'001_initial',file:'src/server/db/migrations/001_initial.sql'},
   {id:'002_enquiry_workflow',file:'src/server/db/migrations/002_enquiry_workflow.sql'},
-  {id:'003_blog_posts',file:'src/server/db/migrations/003_blog_posts.sql'}
+  {id:'003_blog_posts',file:'src/server/db/migrations/003_blog_posts.sql'},
+  {id:'004_site_content',file:'src/server/db/migrations/004_site_content.sql'}
 ];
 for (const migration of migrations) {
   const applied=await client.execute({sql:'SELECT id FROM schema_migrations WHERE id = ?',args:[migration.id]});

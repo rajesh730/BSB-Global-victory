@@ -4,7 +4,7 @@ import Link from 'next/link';
 import {usePathname, useRouter} from 'next/navigation';
 import {useState} from 'react';
 
-const navigation=[{href:'/admin',label:'Overview'},{href:'/admin/enquiries',label:'Enquiries'},{href:'/admin/blog',label:'Blog posts'}];
+const navigation=[{href:'/admin',label:'Overview'},{href:'/admin/enquiries',label:'Enquiries'},{href:'/admin/pages',label:'Page content'},{href:'/admin/settings',label:'Office details'},{href:'/admin/blog',label:'Blog posts'},{href:'/admin/gallery',label:'Gallery'}];
 
 export function AdminSidebar({loginId}:{loginId:string}) {
   const pathname=usePathname();
