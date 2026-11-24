@@ -1,6 +1,7 @@
 import 'server-only';
 import {randomUUID} from 'node:crypto';
-import {getDatabaseClient} from '@/server/db/client';
+import {cache} from 'react';
+import {listDocumentPaths,readDocument,readDocuments,updateDocument,writeDocument} from '@/server/store/documents';
 import type {EnquiryInput} from './schema';
 import type {EnquiryStatus} from './admin-schema';
 
@@ -18,57 +19,50 @@ export type AdminEnquiry = {
   updatedAt:string;
 };
 
-type EnquiryRow = Record<string, unknown>;
+/** One private document per enquiry, so simultaneous form submissions never touch the same file. */
+type StoredEnquiry=AdminEnquiry & {consentAt:string};
 
-function toText(value:unknown) { return typeof value==='string' ? value : ''; }
-function toNullableText(value:unknown) { return typeof value==='string' ? value : null; }
+const folder='enquiries/';
+const validId=(id:string)=>/^[0-9a-f-]{36}$/i.test(id);
+const pathFor=(id:string)=>`${folder}${id}.json`;
 
-function mapAdminEnquiry(row:EnquiryRow): AdminEnquiry {
-  const status=toText(row.status);
-  return {
-    id:toText(row.id),name:toText(row.name),email:toText(row.email),phone:toNullableText(row.phone),
-    destination:toNullableText(row.destination),studyLevel:toNullableText(row.study_level),message:toText(row.message),
-    status:status==='contacted'||status==='in_progress'||status==='closed'?status:'new',
-    internalNote:toNullableText(row.internal_note),createdAt:toText(row.created_at),updatedAt:toText(row.updated_at)
-  };
+function toAdminEnquiry(stored:StoredEnquiry):AdminEnquiry {
+  const {id,name,email,phone,destination,studyLevel,message,status,internalNote,createdAt,updatedAt}=stored;
+  return {id,name,email,phone,destination,studyLevel,message,status,internalNote,createdAt,updatedAt};
 }
+
+/** Every enquiry, newest first. Cached per request so the overview's stats and list share one read. */
+const loadEnquiries=cache(async()=>{
+  const enquiries=await readDocuments<StoredEnquiry>(await listDocumentPaths(folder));
+  return enquiries.sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
+});
 
 export async function createEnquiry(input: EnquiryInput) {
   const id=randomUUID();
   const now=new Date().toISOString();
-  await getDatabaseClient().execute({
-    sql:`INSERT INTO enquiries (id,name,email,phone,destination,study_level,message,consent_at,created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    args:[id,input.name,input.email,input.phone || null,input.destination || null,input.studyLevel || null,input.message,now,now]
-  });
+  const enquiry:StoredEnquiry={
+    id,name:input.name,email:input.email,phone:input.phone || null,destination:input.destination || null,studyLevel:input.studyLevel || null,
+    message:input.message,status:'new',internalNote:null,consentAt:now,createdAt:now,updatedAt:now
+  };
+  await writeDocument(pathFor(id),enquiry,{ifMatch:null});
   return {id,createdAt:now};
 }
 
 export async function getEnquiryStats() {
-  const result=await getDatabaseClient().execute(`SELECT
-    COUNT(*) AS total,
-    SUM(CASE WHEN status = 'new' THEN 1 ELSE 0 END) AS new_count,
-    SUM(CASE WHEN status = 'contacted' THEN 1 ELSE 0 END) AS contacted_count,
-    SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) AS in_progress_count
-    FROM enquiries`);
-  const row=result.rows[0] as EnquiryRow | undefined;
-  const count=(value:unknown)=>typeof value==='number'?value:Number(value || 0);
-  return {total:count(row?.total),new:count(row?.new_count),contacted:count(row?.contacted_count),inProgress:count(row?.in_progress_count)};
+  const enquiries=await loadEnquiries();
+  const count=(status:EnquiryStatus)=>enquiries.filter(enquiry=>enquiry.status===status).length;
+  return {total:enquiries.length,new:count('new'),contacted:count('contacted'),inProgress:count('in_progress')};
 }
 
 export async function listEnquiries(limit=100) {
-  const result=await getDatabaseClient().execute({
-    sql:`SELECT id,name,email,phone,destination,study_level,message,status,internal_note,created_at,updated_at
-         FROM enquiries ORDER BY created_at DESC LIMIT ?`,args:[Math.min(Math.max(limit,1),100)]
-  });
-  return result.rows.map(row=>mapAdminEnquiry(row as EnquiryRow));
+  return (await loadEnquiries()).slice(0,Math.min(Math.max(limit,1),100)).map(toAdminEnquiry);
 }
 
 export async function updateEnquiry(id:string, status:EnquiryStatus, internalNote?:string) {
-  const now=new Date().toISOString();
-  const result=await getDatabaseClient().execute({
-    sql:'UPDATE enquiries SET status = ?, internal_note = ?, updated_at = ? WHERE id = ?',
-    args:[status,internalNote || null,now,id]
+  if (!validId(id) || !await readDocument(pathFor(id))) return false;
+  await updateDocument<StoredEnquiry | null>(pathFor(id),null,current=>{
+    if (!current) throw new Error('Enquiry not found');
+    return {...current,status,internalNote:internalNote || null,updatedAt:new Date().toISOString()};
   });
-  return result.rowsAffected>0;
+  return true;
 }

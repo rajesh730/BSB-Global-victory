@@ -1,7 +1,7 @@
 import {NextResponse} from 'next/server';
 import {isSameOrigin,requireAdminApiSession} from '@/server/auth/request';
 import {blogPostSchema} from '@/server/blog/schema';
-import {deleteBlogPost,getBlogPostById,updateBlogPost} from '@/server/blog/repository';
+import {deleteBlogPost,getBlogPostById,SlugInUseError,updateBlogPost} from '@/server/blog/repository';
 import {deleteUnusedBlogImages,postBlobImages} from '@/server/blog/images';
 
 export const runtime='nodejs';
@@ -21,7 +21,10 @@ export async function PATCH(request:Request,{params}:Context) {
     await deleteUnusedBlogImages(postBlobImages(previous).filter(url=>!kept.has(url)));
     return NextResponse.json({ok:true});
   }
-  catch (error) { console.error('Unable to update blog post',error);return NextResponse.json({message:'This slug may already be in use. Please choose another one.'},{status:409}); }
+  catch (error) {
+    if (error instanceof SlugInUseError) return NextResponse.json({message:'This slug is already in use. Please choose another one.'},{status:409});
+    console.error('Unable to update blog post',error);return NextResponse.json({message:'Unable to save the post. Please try again.'},{status:503});
+  }
 }
 
 export async function DELETE(request:Request,{params}:Context) {

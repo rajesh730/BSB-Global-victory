@@ -19,7 +19,7 @@ Typed content in src/content
 Public branding / illustration assets -> next/image -> accessible layout
 Verified public configuration -> site shell + footer + enquiry form
 
-Optional enquiry API -> server validation -> repository -> local SQLite / Turso libSQL
+Optional enquiry API -> server validation -> repository -> JSON documents in a private Vercel Blob store (local folder in development)
 ```
 
 ## Content model
@@ -44,7 +44,7 @@ The three focus destinations (Japan, United Kingdom, South Korea) and four artic
 ## Security / privacy boundaries
 
 - Backend secrets MUST be stored only in server environment variables and never use `NEXT_PUBLIC_`.
-- The current form defaults to an email draft. Online submission is disabled until a database, migration and public feature flag are configured.
+- The current form defaults to an email draft. Online submission is disabled until the private data store and the public feature flag are configured.
 - Security response headers cover sniffing, referrer information and unnecessary device permissions.
 - Consider a tested Content-Security-Policy before live deployment; it depends on final integrations and must not break scripts/fonts.
 - Add rate limiting and abuse controls if an API or server action is later added.
@@ -61,5 +61,5 @@ The three focus destinations (Japan, United Kingdom, South Korea) and four artic
 ## Known limitations
 
 - No executable production build was possible within the creation environment due to npm registry DNS failure.
-- There is no configured production database, email notification, calendar, analytics, map, CRM, rate-limit provider or translated Nepali copy. The libSQL enquiry path is ready but must be operationally configured before use.
+- There is no configured production data store, email notification, calendar, analytics, map, CRM, rate-limit provider or translated Nepali copy. The Blob enquiry path is ready but must be operationally configured before use.
 - Website copy is a professionally drafted starting point and must be verified by the actual business owner.

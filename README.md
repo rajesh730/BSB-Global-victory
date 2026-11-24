@@ -2,7 +2,7 @@
 
 A designed, content-driven education consultancy website for **BSB Global, Nepal**. This is a professional, modular frontend built with **Next.js 15 App Router, React 19, TypeScript and modern CSS**. It uses the original BSB Global logo and illustrated assets from the approved design direction.
 
-This is **not a deployed website** or a complete CRM, and not a representation that BSB Global’s unverified services and business details are already approved. It includes a backend-ready enquiry boundary that can use local SQLite in development and Turso/libSQL in production when explicitly configured.
+This is **not a deployed website** or a complete CRM, and not a representation that BSB Global’s unverified services and business details are already approved. It includes a backend-ready enquiry boundary that stores data as JSON documents in a private Vercel Blob store (or a local folder in development) when explicitly configured.
 
 ## Quick start
 
@@ -48,7 +48,7 @@ npm run start
 | `/admin/pages`, `/admin/settings`, `/admin/gallery`, `/admin/blog` | Protected editors for page copy and search snippets, office details, gallery images and blog posts |
 | `/sitemap.xml`, `/robots.txt` | Auto-generated metadata routes |
 
-Public pages render on request (the root layout is `force-dynamic`) so changes saved in the dashboard appear without a redeploy. If the database is unavailable, every page falls back to the defaults in `src/server/site/defaults.ts`.
+Public pages render on request (the root layout is `force-dynamic`) so changes saved in the dashboard appear without a redeploy. If data storage is unavailable, every page falls back to the defaults in `src/server/site/defaults.ts`.
 
 ## Folder architecture
 
@@ -100,21 +100,21 @@ NEXT_PUBLIC_WHATSAPP_NUMBER=
 
 ## Enquiries
 
-`src/components/forms/EnquiryForm.tsx` defaults to a safe email-draft workflow. It can submit to the server-side enquiry API only after the database has been configured and `NEXT_PUBLIC_ENQUIRY_API_ENABLED=true`.
+`src/components/forms/EnquiryForm.tsx` defaults to a safe email-draft workflow. It can submit to the server-side enquiry API only after data storage has been configured and `NEXT_PUBLIC_ENQUIRY_API_ENABLED=true`.
 
 - By default, the form opens a **prefilled email draft** addressed to `business.enquiryEmail` (inquiry@bsbglobalvictory.com) that the visitor must send using their email app.
 - If `enquiryEmail` is ever emptied, it falls back to a **copy-to-clipboard enquiry draft** and explicitly says nothing was sent.
 - It does **not** upload documents. When online submissions are disabled, it does not persist personal information or falsely display “enquiry submitted.”
-- The optional `POST /api/enquiries` route validates input, uses parameterised SQL and stores enquiries in libSQL. Configure a production rate limit, retention policy, response ownership and monitoring before enabling it. Do not send emails using exposed client-side credentials.
+- The optional `POST /api/enquiries` route validates input, and stores each enquiry as its own document in the private Vercel Blob data store. Configure a production rate limit, retention policy, response ownership and monitoring before enabling it. Do not send emails using exposed client-side credentials.
 
-See [Database and backend architecture](docs/DATABASE-ARCHITECTURE.md) for local SQLite and Turso setup, migration rules and security boundaries.
+See [Database and backend architecture](docs/DATABASE-ARCHITECTURE.md) for the private Blob data store, local development setup and security boundaries.
 
 ## Admin dashboard
 
 `/admin` is a protected workspace for reviewing counselling enquiries (new, contacted, in progress or closed) and for managing website content: page headings and search snippets, office contact details and hours, the gallery and homepage photo mosaic, and blog posts. It is deliberately separate from the public website chrome and is never indexed.
 
 1. Set `ADMIN_LOGIN_ID`, `ADMIN_PASSWORD` and a unique 32+ character `ADMIN_SESSION_SECRET` in `.env.local` (or in your deployment environment).
-2. Run `npm run db:migrate` to create the enquiry, blog and site-content tables.
+2. Connect a **private** Vercel Blob store for data (`BLOB_DATA_READ_WRITE_TOKEN`) and run `npm run data:check`, or set `LOCAL_DATA_DIR=./data/store` for local development.
    Image uploads (blog and gallery) need a **public** Vercel Blob store connected to the project (`BLOB_READ_WRITE_TOKEN`). The store URL is derived automatically; see [Vercel Blob media](docs/VERCEL-BLOB-MEDIA.md).
 3. Open `http://localhost:3000/admin/login` and sign in with the configured login ID and password.
 
@@ -127,7 +127,7 @@ Posts written at `/admin/blog` appear on `/resources`, the homepage reading list
 - **Drafts and preview:** drafts are visible only in the dashboard; use **Preview saved version** to check a post before publishing.
 - **Delete:** deleting a post, or replacing or removing an image, also deletes the Blob files no other post or gallery item still uses.
 
-Admin sessions are signed and stored in HTTP-only cookies. Credentials and Turso tokens must remain server-only; do not add any of them to variables beginning with `NEXT_PUBLIC_`. The local login rate limit is a useful first layer, but production should also have platform-level rate limiting before the dashboard is made internet-accessible.
+Admin sessions are signed and stored in HTTP-only cookies. Credentials and Blob tokens must remain server-only; do not add any of them to variables beginning with `NEXT_PUBLIC_`. The local login rate limit is a useful first layer, but production should also have platform-level rate limiting before the dashboard is made internet-accessible.
 
 ## Deploy from GitHub (recommended)
 

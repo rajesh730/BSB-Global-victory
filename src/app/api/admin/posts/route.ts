@@ -1,7 +1,7 @@
 import {NextResponse} from 'next/server';
 import {isSameOrigin,requireAdminApiSession} from '@/server/auth/request';
 import {blogPostSchema} from '@/server/blog/schema';
-import {createBlogPost} from '@/server/blog/repository';
+import {createBlogPost,SlugInUseError} from '@/server/blog/repository';
 
 export const runtime='nodejs';
 
@@ -11,5 +11,8 @@ export async function POST(request:Request) {
   let body:unknown;try { body=await request.json(); } catch { return NextResponse.json({message:'Invalid post data.'},{status:400}); }
   const parsed=blogPostSchema.safeParse(body);if (!parsed.success) return NextResponse.json({message:parsed.error.issues[0]?.message || 'Check the post and try again.'},{status:400});
   try { return NextResponse.json({id:await createBlogPost(parsed.data)},{status:201}); }
-  catch (error) { console.error('Unable to create blog post',error);return NextResponse.json({message:'This slug may already be in use. Please choose another one.'},{status:409}); }
+  catch (error) {
+    if (error instanceof SlugInUseError) return NextResponse.json({message:'This slug is already in use. Please choose another one.'},{status:409});
+    console.error('Unable to create blog post',error);return NextResponse.json({message:'Unable to save the post. Please try again.'},{status:503});
+  }
 }

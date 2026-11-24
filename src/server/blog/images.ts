@@ -2,7 +2,9 @@ import 'server-only';
 import {del} from '@vercel/blob';
 import {blobStoreOrigin} from '@/lib/blob-store';
 import {bodyImageUrls} from '@/lib/post-body';
-import {getDatabaseClient} from '@/server/db/client';
+import {readDocument} from '@/server/store/documents';
+import {blogPostsPath,type BlogPost} from './repository';
+import {galleryPath,type StoredGallery} from '@/server/site/repository';
 
 type PostImages={coverImageUrl?:string | null;body:string};
 
@@ -14,19 +16,19 @@ export function postBlobImages(post:PostImages) {
 }
 
 /**
- * Removes blog images from the Blob store once no post or gallery item references them.
+ * Removes blog images from the public image store once no post or gallery item references them.
  * Best effort: a failure is logged and never blocks saving or deleting a post.
  */
 export async function deleteUnusedBlogImages(candidates:string[]) {
   if (!candidates.length || !process.env.BLOB_READ_WRITE_TOKEN) return;
   try {
-    const client=getDatabaseClient();
-    const [posts,gallery]=await Promise.all([client.execute('SELECT cover_image_url, body FROM blog_posts'),client.execute('SELECT image_url FROM gallery_items')]);
+    const [posts,gallery]=await Promise.all([readDocument<BlogPost[]>(blogPostsPath),readDocument<StoredGallery>(galleryPath)]);
     const referenced=new Set<string>();
-    for (const row of posts.rows) for (const url of postBlobImages({coverImageUrl:typeof row.cover_image_url==='string'?row.cover_image_url:null,body:typeof row.body==='string'?row.body:''})) referenced.add(url);
-    for (const row of gallery.rows) if (typeof row.image_url==='string') referenced.add(row.image_url);
+    for (const post of posts?.data ?? []) for (const url of postBlobImages(post)) referenced.add(url);
+    for (const item of gallery?.data.items ?? []) referenced.add(item.src);
     const unused=candidates.filter(url=>!referenced.has(url));
-    if (unused.length) await del(unused);
+    // Images live in the public store, so this uses its token (BLOB_READ_WRITE_TOKEN), not the data store's.
+    if (unused.length) await del(unused,{token:process.env.BLOB_READ_WRITE_TOKEN});
   } catch (error) {
     console.error('Unable to remove unused blog images',error);
   }

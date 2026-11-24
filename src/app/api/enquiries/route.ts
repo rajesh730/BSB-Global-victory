@@ -1,16 +1,12 @@
 import {NextResponse} from 'next/server';
-import {getDatabaseConfig} from '@/server/db/config';
+import {isDataStoreConfigured} from '@/server/store/documents';
 import {createEnquiry} from '@/server/enquiries/repository';
 import {enquirySchema} from '@/server/enquiries/schema';
 
 export const runtime='nodejs';
 
 export async function POST(request:Request) {
-  try {
-    if (!getDatabaseConfig()) return NextResponse.json({message:'Online enquiries are not configured.'},{status:503});
-  } catch {
-    return NextResponse.json({message:'Online enquiries are not configured.'},{status:503});
-  }
+  if (!isDataStoreConfigured()) return NextResponse.json({message:'Online enquiries are not configured.'},{status:503});
   const origin=request.headers.get('origin');
   if (origin && origin!==new URL(request.url).origin) return NextResponse.json({message:'Invalid request origin.'},{status:403});
 

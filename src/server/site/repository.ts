@@ -1,16 +1,30 @@
 import 'server-only';
-import {getDatabaseConfig} from '@/server/db/config';
-import {getDatabaseClient} from '@/server/db/client';
+import {invalidateDocument,isDataStoreConfigured,readCachedDocument,updateDocument} from '@/server/store/documents';
 import {defaultBusinessSettings,defaultGalleryItems,sitePageDefinitions,type GalleryItem,type SitePageDefinition} from './defaults';
 import type {BusinessSettingsInput,GalleryItemsInput,SitePageInput} from './schema';
 import {business as fallbackBusiness,type ContactEmail,type ContactPhone} from '@/lib/site-config';
 
-type Row=Record<string,unknown>;
-const text=(value:unknown)=>typeof value==='string'?value:'';
-const number=(value:unknown)=>typeof value==='number'?value:Number(value || 0);
+/**
+ * Site content documents. Each is read through the shared cache and invalidated on save, so public
+ * pages cost one storage read per document per change. Anything missing or unreadable falls back
+ * to the defaults in ./defaults.ts.
+ */
+export const sitePagesPath='content/site-pages.json';
+export const siteSettingsPath='content/site-settings.json';
+export const galleryPath='content/gallery.json';
+
+type StoredPage=SitePageInput & {updatedAt:string};
+type StoredPages=Record<string,StoredPage>;
+type StoredSettings=BusinessSettingsInput & {updatedAt:string};
+export type StoredGallery={items:GalleryItem[];updatedAt:string};
 
 export type PublicBusinessSettings=BusinessSettingsInput & {updatedAt?:string};
 export type PublicBusinessProfile=PublicBusinessSettings & {emails:ContactEmail[];phones:ContactPhone[];email:string;enquiryEmail:string;phone:ContactPhone;foundingDate:string;foundedLabel:string};
+
+async function readOrDefault<T>(path:string):Promise<T | null> {
+  if (!isDataStoreConfigured()) return null;
+  try { return await readCachedDocument<T>(path); } catch (error) { console.error(`Unable to read ${path}`,error);return null; }
+}
 
 function fallbackPage(id:string){
   const page=sitePageDefinitions.find(candidate=>candidate.id===id);
@@ -18,40 +32,34 @@ function fallbackPage(id:string){
   return page;
 }
 
-function mapPage(row:Row,definition:SitePageDefinition):SitePageDefinition {
-  return {id:definition.id,path:definition.path,label:definition.label,eyebrow:text(row.eyebrow)||definition.eyebrow,title:text(row.title)||definition.title,description:text(row.description)||definition.description,metaTitle:text(row.meta_title)||definition.metaTitle,metaDescription:text(row.meta_description)||definition.metaDescription};
+function mergePage(definition:SitePageDefinition,saved?:StoredPage):SitePageDefinition {
+  if (!saved) return definition;
+  return {...definition,eyebrow:saved.eyebrow||definition.eyebrow,title:saved.title||definition.title,description:saved.description||definition.description,metaTitle:saved.metaTitle||definition.metaTitle,metaDescription:saved.metaDescription||definition.metaDescription};
 }
 
 export async function listSitePages(){
-  if(!getDatabaseConfig()) return sitePageDefinitions;
-  try{
-    const result=await getDatabaseClient().execute('SELECT * FROM site_pages');
-    const rows=new Map(result.rows.map(row=>[text((row as Row).id),row as Row]));
-    return sitePageDefinitions.map(definition=>rows.has(definition.id)?mapPage(rows.get(definition.id)!,definition):definition);
-  }catch{return sitePageDefinitions;}
+  const saved=await readOrDefault<StoredPages>(sitePagesPath);
+  return sitePageDefinitions.map(definition=>mergePage(definition,saved?.[definition.id]));
 }
 
 export async function getSitePage(id:string){
   const definition=fallbackPage(id);
-  if(!getDatabaseConfig()) return definition;
-  try{const result=await getDatabaseClient().execute({sql:'SELECT * FROM site_pages WHERE id = ?',args:[id]});return result.rows[0]?mapPage(result.rows[0] as Row,definition):definition;}catch{return definition;}
+  const saved=await readOrDefault<StoredPages>(sitePagesPath);
+  return mergePage(definition,saved?.[id]);
 }
 
 export async function saveSitePage(id:string,input:SitePageInput){
   fallbackPage(id);
-  const now=new Date().toISOString();
-  await getDatabaseClient().execute({sql:`INSERT INTO site_pages (id,eyebrow,title,description,meta_title,meta_description,updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-    ON CONFLICT(id) DO UPDATE SET eyebrow=excluded.eyebrow,title=excluded.title,description=excluded.description,meta_title=excluded.meta_title,meta_description=excluded.meta_description,updated_at=excluded.updated_at`,args:[id,input.eyebrow,input.title,input.description,input.metaTitle,input.metaDescription,now]});
-}
-
-function mapBusiness(row:Row):PublicBusinessSettings {
-  return {name:text(row.name)||defaultBusinessSettings.name,legalName:text(row.legal_name)||defaultBusinessSettings.legalName,descriptor:text(row.descriptor)||defaultBusinessSettings.descriptor,address:text(row.address)||defaultBusinessSettings.address,location:text(row.location)||defaultBusinessSettings.location,generalEmail:text(row.general_email)||defaultBusinessSettings.generalEmail,enquiryEmail:text(row.enquiry_email)||defaultBusinessSettings.enquiryEmail,officePhone:text(row.office_phone)||defaultBusinessSettings.officePhone,officeTel:text(row.office_tel)||defaultBusinessSettings.officeTel,mobilePhone:text(row.mobile_phone)||defaultBusinessSettings.mobilePhone,mobileTel:text(row.mobile_tel)||defaultBusinessSettings.mobileTel,whatsapp:text(row.whatsapp),directionsUrl:text(row.directions_url),openingHours:text(row.opening_hours),updatedAt:text(row.updated_at)};
+  const page:StoredPage={eyebrow:input.eyebrow,title:input.title,description:input.description,metaTitle:input.metaTitle,metaDescription:input.metaDescription,updatedAt:new Date().toISOString()};
+  await updateDocument<StoredPages>(sitePagesPath,{},pages=>({...pages,[id]:page}));
+  invalidateDocument(sitePagesPath);
 }
 
 export async function getBusinessSettings():Promise<PublicBusinessSettings>{
-  if(!getDatabaseConfig()) return defaultBusinessSettings;
-  try{const result=await getDatabaseClient().execute('SELECT * FROM site_settings WHERE id = 1');return result.rows[0]?mapBusiness(result.rows[0] as Row):defaultBusinessSettings;}catch{return defaultBusinessSettings;}
+  const saved=await readOrDefault<StoredSettings>(siteSettingsPath);
+  if (!saved) return defaultBusinessSettings;
+  const pick=(key:keyof BusinessSettingsInput)=>saved[key] || defaultBusinessSettings[key];
+  return {name:pick('name'),legalName:pick('legalName'),descriptor:pick('descriptor'),address:pick('address'),location:pick('location'),generalEmail:pick('generalEmail'),enquiryEmail:pick('enquiryEmail'),officePhone:pick('officePhone'),officeTel:pick('officeTel'),mobilePhone:pick('mobilePhone'),mobileTel:pick('mobileTel'),whatsapp:saved.whatsapp || '',directionsUrl:saved.directionsUrl || '',openingHours:saved.openingHours || '',updatedAt:saved.updatedAt};
 }
 
 export async function getBusinessProfile():Promise<PublicBusinessProfile>{
@@ -65,23 +73,18 @@ export async function getBusinessProfile():Promise<PublicBusinessProfile>{
 }
 
 export async function saveBusinessSettings(input:BusinessSettingsInput){
-  const now=new Date().toISOString();
-  await getDatabaseClient().execute({sql:`INSERT INTO site_settings (id,name,legal_name,descriptor,address,location,general_email,enquiry_email,office_phone,office_tel,mobile_phone,mobile_tel,whatsapp,directions_url,opening_hours,updated_at)
-    VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ON CONFLICT(id) DO UPDATE SET name=excluded.name,legal_name=excluded.legal_name,descriptor=excluded.descriptor,address=excluded.address,location=excluded.location,general_email=excluded.general_email,enquiry_email=excluded.enquiry_email,office_phone=excluded.office_phone,office_tel=excluded.office_tel,mobile_phone=excluded.mobile_phone,mobile_tel=excluded.mobile_tel,whatsapp=excluded.whatsapp,directions_url=excluded.directions_url,opening_hours=excluded.opening_hours,updated_at=excluded.updated_at`,args:[input.name,input.legalName,input.descriptor,input.address,input.location,input.generalEmail,input.enquiryEmail,input.officePhone,input.officeTel,input.mobilePhone,input.mobileTel,input.whatsapp,input.directionsUrl,input.openingHours,now]});
-}
-
-function mapGalleryItem(row:Row):GalleryItem {
-  const category=text(row.category);
-  return {id:text(row.id),src:text(row.image_url),width:number(row.width),height:number(row.height),category:category==='classes'||category==='departures'?category:'office',alt:text(row.alt),caption:text(row.caption),featured:Boolean(number(row.featured)),sortOrder:number(row.sort_order)};
+  const settings:StoredSettings={...input,updatedAt:new Date().toISOString()};
+  await updateDocument<StoredSettings | null>(siteSettingsPath,null,()=>settings);
+  invalidateDocument(siteSettingsPath);
 }
 
 export async function getGalleryItems():Promise<GalleryItem[]>{
-  if(!getDatabaseConfig()) return defaultGalleryItems;
-  try{const result=await getDatabaseClient().execute('SELECT * FROM gallery_items ORDER BY sort_order, id');return result.rows.length?result.rows.map(row=>mapGalleryItem(row as Row)):defaultGalleryItems;}catch{return defaultGalleryItems;}
+  const saved=await readOrDefault<StoredGallery>(galleryPath);
+  return saved?.items.length?[...saved.items].sort((a,b)=>a.sortOrder-b.sortOrder || a.id.localeCompare(b.id)):defaultGalleryItems;
 }
 
 export async function saveGalleryItems(input:GalleryItemsInput){
-  const client=getDatabaseClient();const now=new Date().toISOString();
-  await client.batch([{sql:'DELETE FROM gallery_items',args:[]},...input.items.map(item=>({sql:'INSERT INTO gallery_items (id,image_url,width,height,category,alt,caption,featured,sort_order,updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',args:[item.id,item.src,item.width,item.height,item.category,item.alt,item.caption,item.featured?1:0,item.sortOrder,now]}))],'write');
+  const gallery:StoredGallery={items:input.items.map(item=>({id:item.id,src:item.src,width:item.width,height:item.height,category:item.category,alt:item.alt,caption:item.caption,featured:item.featured,sortOrder:item.sortOrder})),updatedAt:new Date().toISOString()};
+  await updateDocument<StoredGallery | null>(galleryPath,null,()=>gallery);
+  invalidateDocument(galleryPath);
 }
