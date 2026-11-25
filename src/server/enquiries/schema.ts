@@ -9,7 +9,6 @@ export const enquirySchema=z.object({
   destination:optionalText(80),
   studyLevel:optionalText(80),
   message:z.string().trim().min(10,'Please add a little more detail to your enquiry.').max(2000),
-  consent:z.literal(true,{error:'Please acknowledge the privacy information.'}),
   website:optionalText(200)
 });
 

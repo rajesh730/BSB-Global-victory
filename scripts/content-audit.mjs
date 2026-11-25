@@ -26,7 +26,10 @@ const slugs=['japan','united-kingdom','south-korea'];
 slugs.forEach(slug=>{if(!destText.includes(`slug: '${slug}'`))errors.push(`Missing country: ${slug}`);});
 const pages=findTsx(join(project,'src/app'));
 for(const page of pages){const text=readFileSync(page,'utf8');if(text.includes('href="#"'))errors.push(`Empty link in ${page}`);}
+// House style: no em or en dashes in website copy. Use a comma, colon, brackets or "to" instead.
+for(const file of findSource(join(project,'src'))){readFileSync(file,'utf8').split('\n').forEach((line,index)=>{if(/[–—]/.test(line))errors.push(`Dash character in ${file}:${index+1}`);});}
 function findTsx(folder){return readdirSync(folder,{withFileTypes:true}).flatMap(x=>x.isDirectory()?findTsx(join(folder,x.name)):x.name.endsWith('.tsx')?[join(folder,x.name)]:[]);}
+function findSource(folder){return readdirSync(folder,{withFileTypes:true}).flatMap(x=>x.isDirectory()?findSource(join(folder,x.name)):/\.(tsx?|json|css)$/.test(x.name)?[join(folder,x.name)]:[]);}
 if(errors.length){console.error('Audit FAILED:\n'+errors.map(e=>' - '+e).join('\n'));process.exit(1);}
 console.log(`Audit passed: ${requiredPages.length-1} route files including 2 dynamic templates, ${slugs.length} destinations, ${articles.length} articles, ${assets.length} essential assets, ${photoSrcs.length} photos.`);
 console.log('IMPORTANT: This checks files and content consistency; run npm run check to verify TypeScript and the production build.');

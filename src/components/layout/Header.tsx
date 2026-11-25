@@ -37,7 +37,7 @@ export function Header({business}:{business:PublicBusinessProfile}) {
     <div className="topline"><div className="container topline-inner"><span>Guidance for your next chapter · Est. 2024</span><span className="topline-secondary"><a href={`tel:${business.phone.tel}`}>{business.phone.display}</a> · <a href={`mailto:${business.email}`}>{business.email}</a></span></div></div>
     <header className={`site-header${isScrolled ? ' is-scrolled' : ''}`}>
       <div className="container header-inner">
-        <Link href="/" className="brand" aria-label="BSB Global — home"><Image src="/brand/bsb-global-logo.webp" alt="" width={56} height={56} priority /><span className="brand-type"><strong>BSB GLOBAL</strong><small>{business.descriptor}</small></span></Link>
+        <Link href="/" className="brand" aria-label="BSB Global home"><Image src="/brand/bsb-global-logo.webp" alt="" width={56} height={56} priority /><span className="brand-type"><strong>BSB GLOBAL</strong><small>{business.descriptor}</small></span></Link>
         <nav className={`primary-nav${isMenuOpen ? ' is-open' : ''}`} aria-label="Primary navigation" id="primary-navigation">
           {primaryNavigation.map(item => item.href === '/study-abroad'
             ? <div className="nav-dropdown" key={item.href}>

@@ -1,13 +1,11 @@
 import type { SVGProps, ReactNode } from 'react';
 
-export type IconName = 'arrow-up-right' | 'arrow-right' | 'chevron-down' | 'menu' | 'close' | 'check' | 'globe' | 'book' | 'compass' | 'file' | 'mail' | 'phone' | 'map' | 'clock' | 'external' | 'copy' | 'shield';
+export type IconName = 'chevron-down' | 'menu' | 'close' | 'check' | 'globe' | 'book' | 'compass' | 'file' | 'mail' | 'phone' | 'map' | 'clock' | 'external' | 'shield';
 type Props = SVGProps<SVGSVGElement> & {name: IconName; size?: number};
 
 export function Icon({name, size = 20, ...props}: Props) {
   const shared = {width:size,height:size,viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:1.8,strokeLinecap:'round' as const,strokeLinejoin:'round' as const,'aria-hidden':true as const};
   const shapes: Record<IconName, ReactNode> = {
-    'arrow-up-right': <><path d="M7 17 17 7M8 7h9v9"/></>,
-    'arrow-right': <><path d="M4 12h16m-7-7 7 7-7 7"/></>,
     'chevron-down': <><path d="m6 9 6 6 6-6"/></>,
     'menu': <><path d="M4 7h16M4 12h16M4 17h16"/></>,
     'close': <><path d="M6 6l12 12M18 6 6 18"/></>,
@@ -21,7 +19,6 @@ export function Icon({name, size = 20, ...props}: Props) {
     'map': <><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Zm6-3v15m6-12v15"/></>,
     'clock': <><circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 2"/></>,
     'external': <><path d="M14 4h6v6M20 4l-9 9"/><path d="M20 14v5H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></>,
-    'copy': <><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></>,
     'shield': <><path d="M12 2 4 5v6c0 5 3.5 8.5 8 11 4.5-2.5 8-6 8-11V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></>
   };
   return <svg {...shared} {...props}>{shapes[name]}</svg>;

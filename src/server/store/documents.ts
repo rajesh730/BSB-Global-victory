@@ -1,8 +1,8 @@
 import 'server-only';
 import {createHash} from 'node:crypto';
-import {mkdir,readFile,readdir,rm,writeFile} from 'node:fs/promises';
+import {mkdir,readFile,readdir,writeFile} from 'node:fs/promises';
 import {dirname,join,relative,resolve,sep} from 'node:path';
-import {BlobError,BlobPreconditionFailedError,del,get,list,put} from '@vercel/blob';
+import {BlobError,BlobPreconditionFailedError,get,list,put} from '@vercel/blob';
 import {revalidateTag,unstable_cache} from 'next/cache';
 
 /**
@@ -139,13 +139,6 @@ export async function writeDocument(path:string,data:unknown,{ifMatch}:{ifMatch:
     if (ifMatch===null && await readDocument(path).catch(()=>null)) throw new DocumentConflictError(path);
     throw error;
   }
-}
-
-export async function deleteDocument(path:string) {
-  assertPath(path);
-  const store=requireBackend();
-  if (store.kind==='file') { await rm(filePath(store.root,path),{force:true});return; }
-  await del(path,{token:store.token});
 }
 
 /** Paths of every document under a folder prefix such as `enquiries/`. */

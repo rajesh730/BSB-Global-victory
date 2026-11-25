@@ -20,7 +20,7 @@ export type AdminEnquiry = {
 };
 
 /** One private document per enquiry, so simultaneous form submissions never touch the same file. */
-type StoredEnquiry=AdminEnquiry & {consentAt:string};
+type StoredEnquiry=AdminEnquiry;
 
 const folder='enquiries/';
 const validId=(id:string)=>/^[0-9a-f-]{36}$/i.test(id);
@@ -42,7 +42,7 @@ export async function createEnquiry(input: EnquiryInput) {
   const now=new Date().toISOString();
   const enquiry:StoredEnquiry={
     id,name:input.name,email:input.email,phone:input.phone || null,destination:input.destination || null,studyLevel:input.studyLevel || null,
-    message:input.message,status:'new',internalNote:null,consentAt:now,createdAt:now,updatedAt:now
+    message:input.message,status:'new',internalNote:null,createdAt:now,updatedAt:now
   };
   await writeDocument(pathFor(id),enquiry,{ifMatch:null});
   return {id,createdAt:now};

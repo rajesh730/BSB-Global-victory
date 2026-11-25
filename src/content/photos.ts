@@ -1,4 +1,4 @@
-import type { Photo, PhotoCategory } from '@/types/content';
+import type { Photo } from '@/types/content';
 import {photoSrc} from '@/lib/media';
 
 // Original office photography. Files live in public/photos; width/height are the real pixel sizes.
@@ -25,11 +25,6 @@ export const photos: Photo[] = [
     alt: 'A team member seeing off two students in farewell scarves at the international terminal', caption: 'Seeing our students off at the international terminal.' }
 ];
 
-export const photoCategories: { id: PhotoCategory; label: string; description: string }[] = [
-  { id: 'office', label: 'Our office & team', description: 'The people and the space where conversations about your future begin.' },
-  { id: 'classes', label: 'Classes & community', description: 'Students preparing, learning and growing together.' },
-  { id: 'departures', label: 'Student departures', description: 'Proud moments as students set out on their journey.' }
-];
 
 export function getPhoto(id: string): Photo {
   const photo = photos.find(p => p.id === id);

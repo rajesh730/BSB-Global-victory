@@ -1,4 +1,4 @@
-# BSB Global — Next.js Frontend
+# BSB Global: Next.js Frontend
 
 A designed, content-driven education consultancy website for **BSB Global, Nepal**. This is a professional, modular frontend built with **Next.js 15 App Router, React 19, TypeScript and modern CSS**. It uses the original BSB Global logo and illustrated assets from the approved design direction.
 

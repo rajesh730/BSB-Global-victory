@@ -1,4 +1,4 @@
-# Production Launch Checklist — BSB Global
+# Production Launch Checklist: BSB Global
 
 This is a tracked gate: do not enable indexing or advertise a functional online enquiry form until the relevant items are complete.
 

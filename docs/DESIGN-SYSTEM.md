@@ -1,4 +1,4 @@
-# BSB Global — Visual and Interaction System
+# BSB Global: Visual and Interaction System
 
 ## Visual idea
 
@@ -26,9 +26,9 @@ The bright red in the original supplied logo is retained inside the logo image. 
 - Primary heading family: **Manrope** with system fallback.
 - Body family: **DM Sans** with system fallback.
 - Headings use strong weight (800) and *moderate* negative tracking, reduced from the overly-tight previous layout. Body tracking is close to natural (`.004em`) to aid legibility.
-- Short all-caps metadata, section labels and dossier stamps use `0.10–0.18em` tracking for intentional rhythm.
+- Short all-caps metadata, section labels and dossier stamps use `0.10 to 0.18em` tracking for intentional rhythm.
 - Mobile headings use `clamp` and careful line breaks rather than fixed desktop sizes.
-- Body text generally has 1.7–1.96 line height. Avoid letter-spaced long paragraphs; tracking is for short labels, not continuous reading.
+- Body text generally has 1.7 to 1.96 line height. Avoid letter-spaced long paragraphs; tracking is for short labels, not continuous reading.
 
 ## Page-specific visual architecture
 

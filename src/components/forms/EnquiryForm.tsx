@@ -1,21 +1,19 @@
 'use client';
 
 import {useState, type FormEvent} from 'react';
-import Link from 'next/link';
 import {destinations} from '@/content/destinations';
-type Enquiry = {name:string;email:string;phone:string;destination:string;studyLevel:string;message:string;consent:boolean;website:string};
-const emptyEnquiry:Enquiry={name:'',email:'',phone:'',destination:'',studyLevel:'',message:'',consent:false,website:''};
+type Enquiry = {name:string;email:string;phone:string;destination:string;studyLevel:string;message:string;website:string};
+const emptyEnquiry:Enquiry={name:'',email:'',phone:'',destination:'',studyLevel:'',message:'',website:''};
 
 /** Sends the enquiry straight to the admin dashboard (via /api/enquiries). Nothing opens on the visitor's device. */
 export function EnquiryForm({enquiryEmail}:{enquiryEmail:string}){
   const [values,setValues]=useState<Enquiry>(emptyEnquiry);
   const [status,setStatus]=useState('');
   const [isSending,setIsSending]=useState(false);
-  const updateField=(field:keyof Enquiry,value:string|boolean)=>{setValues(previous=>({...previous,[field]:value}));setStatus('');};
+  const updateField=(field:keyof Enquiry,value:string)=>{setValues(previous=>({...previous,[field]:value}));setStatus('');};
   const handleSubmit=async(event:FormEvent<HTMLFormElement>)=>{
     event.preventDefault();
     if(isSending) return;
-    if(!values.consent){setStatus('Please acknowledge the privacy notice.');return;}
     setIsSending(true);
     setStatus('Sending your enquiry…');
     try {
@@ -42,7 +40,6 @@ export function EnquiryForm({enquiryEmail}:{enquiryEmail:string}){
       <label className="field full-field">Intended study level<select name="studyLevel" value={values.studyLevel} onChange={event=>updateField('studyLevel',event.target.value)}><option value="">Not sure yet</option><option>Undergraduate</option><option>Postgraduate</option><option>Diploma / vocational</option><option>Language programme</option><option>Other</option></select></label>
       <label className="field full-field">How can we help? <span aria-hidden="true">*</span><textarea required name="message" rows={5} maxLength={2000} placeholder="Tell us what you want to study and what questions you have…" value={values.message} onChange={event=>updateField('message',event.target.value)}/></label>
     </div>
-    <label className="privacy-check"><input type="checkbox" required checked={values.consent} onChange={event=>updateField('consent',event.target.checked)}/><span>I agree to the <Link href="/privacy">privacy policy</Link>. <b aria-hidden="true">*</b></span></label>
     <button className="button button-primary form-submit" type="submit" disabled={isSending}>{isSending?'Sending…':'Send enquiry'}</button>
     <p className="form-disclosure">We will use your details only to respond to your enquiry. Do not send sensitive documents.</p>
     <p className="form-status" role="status" aria-live="polite">{status}</p>
