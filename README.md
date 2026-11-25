@@ -100,7 +100,7 @@ NEXT_PUBLIC_WHATSAPP_NUMBER=
 
 ## Enquiries
 
-`src/components/forms/EnquiryForm.tsx` defaults to a safe email-draft workflow. It can submit to the server-side enquiry API only after data storage has been configured and `NEXT_PUBLIC_ENQUIRY_API_ENABLED=true`.
+`src/components/forms/EnquiryForm.tsx` submits enquiries to `/api/enquiries`, which saves them to the data store so they appear in the admin dashboard. No email app is opened.
 
 - By default, the form opens a **prefilled email draft** addressed to `business.enquiryEmail` (inquiry@bsbglobalvictory.com) that the visitor must send using their email app.
 - If `enquiryEmail` is ever emptied, it falls back to a **copy-to-clipboard enquiry draft** and explicitly says nothing was sent.

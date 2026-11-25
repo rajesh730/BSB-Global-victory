@@ -3,55 +3,32 @@
 import {useState, type FormEvent} from 'react';
 import Link from 'next/link';
 import {destinations} from '@/content/destinations';
-import {Icon} from '@/components/ui/Icon';
-const isOnlineSubmissionEnabled = process.env.NEXT_PUBLIC_ENQUIRY_API_ENABLED === 'true';
-
 type Enquiry = {name:string;email:string;phone:string;destination:string;studyLevel:string;message:string;consent:boolean;website:string};
 const emptyEnquiry:Enquiry={name:'',email:'',phone:'',destination:'',studyLevel:'',message:'',consent:false,website:''};
 
-function formatEnquiryDraft(values:Enquiry){
-  return [
-    'BSB Global — counselling enquiry',
-    `Name: ${values.name.trim()}`,
-    `Email: ${values.email.trim()}`,
-    `Phone: ${values.phone.trim() || 'Not provided'}`,
-    `Destination: ${values.destination || 'Undecided'}`,
-    `Intended study level: ${values.studyLevel || 'Not specified'}`,
-    `Questions: ${values.message.trim()}`
-  ].join('\n');
-}
-
+/** Sends the enquiry straight to the admin dashboard (via /api/enquiries). Nothing opens on the visitor's device. */
 export function EnquiryForm({enquiryEmail}:{enquiryEmail:string}){
   const [values,setValues]=useState<Enquiry>(emptyEnquiry);
   const [status,setStatus]=useState('');
+  const [isSending,setIsSending]=useState(false);
   const updateField=(field:keyof Enquiry,value:string|boolean)=>{setValues(previous=>({...previous,[field]:value}));setStatus('');};
   const handleSubmit=async(event:FormEvent<HTMLFormElement>)=>{
     event.preventDefault();
+    if(isSending) return;
     if(!values.consent){setStatus('Please acknowledge the privacy notice.');return;}
-    if(isOnlineSubmissionEnabled){
-      setStatus('Sending your enquiry…');
-      try {
-        const response=await fetch('/api/enquiries',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(values)});
-        const payload=await response.json() as {message?:string};
-        if(!response.ok) throw new Error(payload.message || 'We could not send your enquiry.');
-        setValues(emptyEnquiry);
-        setStatus('Thank you. Your enquiry has been sent.');
-      } catch (error) {
-        setStatus(error instanceof Error ? error.message : 'We could not send your enquiry. Please use email or telephone instead.');
-      }
-      return;
-    }
-    const draft=formatEnquiryDraft(values);
-    if(enquiryEmail){
-      window.location.href=`mailto:${enquiryEmail}?subject=${encodeURIComponent('BSB Global counselling enquiry')}&body=${encodeURIComponent(draft)}`;
-      setStatus('Your email app is ready. Please review and send your enquiry.');
-      return;
-    }
-    try{
-      await navigator.clipboard.writeText(draft);
-      setStatus('Your enquiry has been copied to the clipboard. It has not been sent.');
-    }catch{
-      setStatus('No verified enquiry inbox is configured yet. Please contact BSB Global through its verified channels after publication.');
+    setIsSending(true);
+    setStatus('Sending your enquiry…');
+    try {
+      const response=await fetch('/api/enquiries',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(values)});
+      const payload=await response.json().catch(()=>({})) as {message?:string};
+      if(!response.ok) throw new Error(payload.message || 'We could not send your enquiry.');
+      setValues(emptyEnquiry);
+      setStatus('Thank you. Your enquiry has been sent. Our team will contact you soon.');
+    } catch (error) {
+      const fallback=enquiryEmail?` You can also email us at ${enquiryEmail}.`:'';
+      setStatus((error instanceof Error ? error.message : 'We could not send your enquiry.')+fallback);
+    } finally {
+      setIsSending(false);
     }
   };
   return <form className="enquiry-form" onSubmit={handleSubmit}>
@@ -66,8 +43,8 @@ export function EnquiryForm({enquiryEmail}:{enquiryEmail:string}){
       <label className="field full-field">How can we help? <span aria-hidden="true">*</span><textarea required name="message" rows={5} maxLength={2000} placeholder="Tell us what you want to study and what questions you have…" value={values.message} onChange={event=>updateField('message',event.target.value)}/></label>
     </div>
     <label className="privacy-check"><input type="checkbox" required checked={values.consent} onChange={event=>updateField('consent',event.target.checked)}/><span>I agree to the <Link href="/privacy">privacy policy</Link>. <b aria-hidden="true">*</b></span></label>
-    <button className="button button-primary form-submit" type="submit">{isOnlineSubmissionEnabled?'Send enquiry':enquiryEmail?'Open enquiry in email':'Copy enquiry draft'} {!isOnlineSubmissionEnabled&&!enquiryEmail&&<Icon name="copy" size={18}/>}</button>
-    <p className="form-disclosure">{isOnlineSubmissionEnabled?'We will use your details only to respond to your enquiry. Do not send sensitive documents.':enquiryEmail?'Your email app will send your enquiry.':'Your enquiry is not sent until a secure contact method is available.'}</p>
+    <button className="button button-primary form-submit" type="submit" disabled={isSending}>{isSending?'Sending…':'Send enquiry'}</button>
+    <p className="form-disclosure">We will use your details only to respond to your enquiry. Do not send sensitive documents.</p>
     <p className="form-status" role="status" aria-live="polite">{status}</p>
   </form>;
 }

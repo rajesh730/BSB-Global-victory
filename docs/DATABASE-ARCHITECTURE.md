@@ -71,7 +71,7 @@ A store's access mode is fixed when it is created, so data cannot share the publ
 2. Connect it to the project with the environment variable prefix `BLOB_DATA`. Vercel then adds `BLOB_DATA_READ_WRITE_TOKEN`.
 3. Pull it locally with `vercel env pull .env.local`, or copy it into `.env.local`.
 4. Run `npm run data:check`. It writes a test document, reads it back, confirms it is **not** readable without the token, then deletes it.
-5. Set `NEXT_PUBLIC_ENQUIRY_API_ENABLED=true` when you are ready to accept online enquiries, and redeploy.
+5. Redeploy. The contact form always submits enquiries to the data store; they appear under Admin → Enquiries.
 
 **Local development:** set `LOCAL_DATA_DIR=./data/store` instead. The same documents are written as files in that folder, which is git-ignored. If both variables are set, the Blob store is used, so remove `BLOB_DATA_READ_WRITE_TOKEN` locally to avoid editing live data.
 

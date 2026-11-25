@@ -15,6 +15,10 @@ import {revalidateTag,unstable_cache} from 'next/cache';
  *
  * Development: LOCAL_DATA_DIR (for example ./data/store) keeps the same documents as files on disk.
  *
+ * TEMPORARY (testing only): when neither is set, documents fall back to the PUBLIC image store
+ * (BLOB_READ_WRITE_TOKEN). Anyone with a document's URL can read it there, including enquiries.
+ * Set BLOB_DATA_READ_WRITE_TOKEN to a private store before real use; it then takes precedence.
+ *
  * Writes use ETags (`ifMatch`) so two saves cannot silently overwrite each other.
  */
 
@@ -22,14 +26,16 @@ export type StoredDocument<T>={data:T;etag:string};
 export class DocumentConflictError extends Error { constructor(path:string){super(`Document changed while saving: ${path}`);} }
 
 type Backend=
-  | {kind:'blob';token:string}
+  | {kind:'blob';token:string;access:'private' | 'public'}
   | {kind:'file';root:string};
 
 function backend():Backend | null {
   const token=process.env.BLOB_DATA_READ_WRITE_TOKEN?.trim();
-  if (token) return {kind:'blob',token};
+  if (token) return {kind:'blob',token,access:'private'};
   const dir=process.env.LOCAL_DATA_DIR?.trim();
   if (dir) return {kind:'file',root:resolve(dir)};
+  const publicToken=process.env.BLOB_READ_WRITE_TOKEN?.trim();
+  if (publicToken) return {kind:'blob',token:publicToken,access:'public'};
   return null;
 }
 
@@ -59,7 +65,7 @@ export async function readDocument<T>(path:string):Promise<StoredDocument<T> | n
     try { const text=await readFile(filePath(store.root,path),'utf8');return {data:JSON.parse(text) as T,etag:hash(text)}; }
     catch (error) { if ((error as NodeJS.ErrnoException).code==='ENOENT') return null;throw error; }
   }
-  const result=await get(path,{access:'private',token:store.token,useCache:false});
+  const result=await get(path,{access:store.access,token:store.token,useCache:false});
   if (!result || result.statusCode!==200) return null;
   const text=await new Response(result.stream).text();
   return {data:JSON.parse(text) as T,etag:result.blob.etag};
@@ -86,7 +92,7 @@ export async function writeDocument(path:string,data:unknown,{ifMatch}:{ifMatch:
     return;
   }
   try {
-    await put(path,text,{access:'private',token:store.token,contentType:'application/json',addRandomSuffix:false,cacheControlMaxAge:60,...(ifMatch===null?{}:{ifMatch})});
+    await put(path,text,{access:store.access,token:store.token,contentType:'application/json',addRandomSuffix:false,cacheControlMaxAge:60,...(ifMatch===null?{}:{ifMatch})});
   } catch (error) {
     if (error instanceof BlobPreconditionFailedError) throw new DocumentConflictError(path);
     // A create-only write fails when the document already exists; report that as a conflict.
