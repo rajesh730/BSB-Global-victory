@@ -2,7 +2,7 @@ import 'server-only';
 import {createHash} from 'node:crypto';
 import {mkdir,readFile,readdir,rm,writeFile} from 'node:fs/promises';
 import {dirname,join,relative,resolve,sep} from 'node:path';
-import {BlobPreconditionFailedError,del,get,list,put} from '@vercel/blob';
+import {BlobError,BlobPreconditionFailedError,del,get,list,put} from '@vercel/blob';
 import {revalidateTag,unstable_cache} from 'next/cache';
 
 /**
@@ -25,18 +25,56 @@ import {revalidateTag,unstable_cache} from 'next/cache';
 export type StoredDocument<T>={data:T;etag:string};
 export class DocumentConflictError extends Error { constructor(path:string){super(`Document changed while saving: ${path}`);} }
 
-type Backend=
-  | {kind:'blob';token:string;access:'private' | 'public'}
-  | {kind:'file';root:string};
+type Access='private' | 'public';
+type BlobBackend={kind:'blob';token:string;access:Access};
+type Backend=BlobBackend | {kind:'file';root:string};
+
+/** A store's access mode is fixed when it is created; once a call reveals it, remember it per token. */
+const detectedAccess=new Map<string,Access>();
+
+function blobBackend(token:string,assumed:Access):BlobBackend {
+  const isImageStore=token===process.env.BLOB_READ_WRITE_TOKEN?.trim();
+  return {kind:'blob',token,access:detectedAccess.get(token) ?? (isImageStore?'public':assumed)};
+}
 
 function backend():Backend | null {
   const token=process.env.BLOB_DATA_READ_WRITE_TOKEN?.trim();
-  if (token) return {kind:'blob',token,access:'private'};
-  const dir=process.env.LOCAL_DATA_DIR?.trim();
+  if (token) return blobBackend(token,'private');
+  // Vercel's file system is read-only and not shared between requests, so files there would be lost.
+  const dir=process.env.VERCEL?undefined:process.env.LOCAL_DATA_DIR?.trim();
   if (dir) return {kind:'file',root:resolve(dir)};
   const publicToken=process.env.BLOB_READ_WRITE_TOKEN?.trim();
-  if (publicToken) return {kind:'blob',token:publicToken,access:'public'};
+  if (publicToken) return blobBackend(publicToken,'public');
   return null;
+}
+
+const otherAccess=(access:Access):Access=>access==='private'?'public':'private';
+const isAccessMismatch=(error:unknown)=>error instanceof Error && /cannot use (private|public) access on a (public|private) store/i.test(error.message);
+
+/**
+ * Runs a Blob call with the store's access mode. If the store turns out to have the other mode
+ * (for example a public store connected as the data store), retries once with it and remembers it.
+ * Reads retry on any Blob error, because the SDK reports a wrong mode on reads only as a bad request.
+ */
+async function withAccess<R>(store:BlobBackend,run:(access:Access)=>Promise<R>,{isRead=false}={}):Promise<R> {
+  try { return await run(store.access); }
+  catch (error) {
+    if (!isAccessMismatch(error) && !(isRead && error instanceof BlobError)) throw error;
+    const access=otherAccess(store.access);
+    let result:R;
+    try { result=await run(access); } catch { throw error; }
+    detectedAccess.set(store.token,access);
+    if (access==='public') console.warn('[data-store] The data store is a PUBLIC Blob store. Use a private store before storing real enquiries.');
+    return result;
+  }
+}
+
+/** Where documents are kept, for the admin dashboard. */
+export function dataStoreDescription():string {
+  const store=backend();
+  if (!store) return 'Storage not configured';
+  if (store.kind==='file') return 'Local files (development)';
+  return store.access==='public'?'Vercel Blob, public store (testing only)':'Vercel Blob, private store';
 }
 
 function requireBackend():Backend {
@@ -65,7 +103,8 @@ export async function readDocument<T>(path:string):Promise<StoredDocument<T> | n
     try { const text=await readFile(filePath(store.root,path),'utf8');return {data:JSON.parse(text) as T,etag:hash(text)}; }
     catch (error) { if ((error as NodeJS.ErrnoException).code==='ENOENT') return null;throw error; }
   }
-  const result=await get(path,{access:store.access,token:store.token,useCache:false});
+  const blobStore=store;
+  const result=await withAccess(blobStore,access=>get(path,{access,token:blobStore.token,useCache:false}),{isRead:true});
   if (!result || result.statusCode!==200) return null;
   const text=await new Response(result.stream).text();
   return {data:JSON.parse(text) as T,etag:result.blob.etag};
@@ -92,7 +131,8 @@ export async function writeDocument(path:string,data:unknown,{ifMatch}:{ifMatch:
     return;
   }
   try {
-    await put(path,text,{access:store.access,token:store.token,contentType:'application/json',addRandomSuffix:false,cacheControlMaxAge:60,...(ifMatch===null?{}:{ifMatch})});
+    const blobStore=store;
+    await withAccess(blobStore,access=>put(path,text,{access,token:blobStore.token,contentType:'application/json',addRandomSuffix:false,cacheControlMaxAge:60,...(ifMatch===null?{}:{ifMatch})}));
   } catch (error) {
     if (error instanceof BlobPreconditionFailedError) throw new DocumentConflictError(path);
     // A create-only write fails when the document already exists; report that as a conflict.
