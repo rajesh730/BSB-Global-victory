@@ -30,7 +30,7 @@ export function EnquiryForm({enquiryEmail}:{enquiryEmail:string}){
     }
   };
   return <form className="enquiry-form" onSubmit={handleSubmit}>
-    <div className="form-heading"><span>YOUR ENQUIRY / 01</span><h2>Tell us a little about your plans.</h2><p>No document uploads, no pressure. Start with the basics.</p></div>
+    <div className="form-heading"><span>Your enquiry</span><h2>Tell us a little about your plans</h2><p>No document uploads, no pressure. Start with the basics.</p></div>
     <div className="form-fields">
       <label className="honeypot" aria-hidden="true">Website<input tabIndex={-1} autoComplete="off" name="website" value={values.website} onChange={event=>updateField('website',event.target.value)}/></label>
       <label className="field">Full name <span aria-hidden="true">*</span><input required name="name" autoComplete="name" maxLength={100} placeholder="Your full name" value={values.name} onChange={event=>updateField('name',event.target.value)}/></label>

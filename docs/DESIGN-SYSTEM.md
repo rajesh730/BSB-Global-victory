@@ -21,20 +21,33 @@
 
 The bright red in the original supplied logo is retained inside the logo image. The button red is darkened to improve legibility for white button text.
 
+## Direction (unslop pass, November 2026)
+
+- **Character:** steady, honest, warm.
+- **World:** the journey that starts at the Milanchowk, Butwal counselling desk: paperwork, a passport, farewell scarves. Marketing stays local to Butwal and Rupandehi.
+- **Moment:** the homepage hero shows a real departure photo with a boarding-pass card.
+- **Signature:** the route line `Butwal → JP / GB / KR`, used only on the hero pass, destination cards, the destinations menu and country heroes.
+
 ## Typography
 
-- Primary heading family: **Manrope** with system fallback.
-- Body family: **DM Sans** with system fallback.
-- Headings use strong weight (800) and *moderate* negative tracking, reduced from the overly-tight previous layout. Body tracking is close to natural (`.004em`) to aid legibility.
-- Short all-caps metadata, section labels and dossier stamps use `0.10 to 0.18em` tracking for intentional rhythm.
-- Mobile headings use `clamp` and careful line breaks rather than fixed desktop sizes.
-- Body text generally has 1.7 to 1.96 line height. Avoid letter-spaced long paragraphs; tracking is for short labels, not continuous reading.
+- Headlines (h1, h2 and large display letterforms): **Newsreader** 400, `-0.02em` tracking.
+- Everything else, including h3, labels, buttons and navigation: **DM Sans** at 400 or 500, with 600 only for the wordmark.
+- Labels are sentence case with natural tracking. No uppercase tracked labels, and no text under 12px.
+- Headlines and labels have no trailing full stop. `headline()` in `src/lib/headline.ts` strips one from dashboard copy.
+- Text roles: `--ink` (primary), `--text-2` (secondary), `--muted` (meta only).
+
+## Spacing, radius and motion
+
+- Every spacing value sits on a 4px grid.
+- Radius scale: `--r-control` 8px for buttons and inputs, `--r-card` 12px, `--r-panel` 16px.
+- Cards are flat surfaces with a hairline border. On hover only the border color changes; there are no colored top stripes, lifts or image zooms.
+- One easing curve, `cubic-bezier(.22,1,.36,1)`. The hero has one short entrance, content below the fold has a short reveal, and nothing loops.
 
 ## Page-specific visual architecture
 
 | Page | Signature visual |
 |---|---|
-| Homepage | Navy hero + globe illustration + tilted journal card |
+| Homepage | Navy hero + real departure photo + Butwal route pass |
 | Destinations index | Editorial introduction + illustrated destination grid |
 | Country details | Illustrated destination dossier + guidance checklist + official source panel |
 | Services | Process/service grid + scope transparency panel |
@@ -49,10 +62,8 @@ The bright red in the original supplied logo is retained inside the logo image. 
 ## Interaction and motion
 
 - The mobile menu and destination flyout use explicit state and accessible labels.
-- Card hover uses slight movement and a soft shadow, not dramatic transform/blur.
-- Intro elements animate once. A gently animated travel card adds personality without masking content.
-- Browser’s `prefers-reduced-motion` disables animations and nonessential transitions.
-- Buttons describe what they do and remain keyboard navigable.
+- Hover is a color or border change only. Buttons scale to 0.98 on press.
+- With `prefers-reduced-motion`, all animations and nonessential transitions are off.
 
 ## Responsive breakpoints
 

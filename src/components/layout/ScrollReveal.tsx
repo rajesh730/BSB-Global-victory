@@ -12,58 +12,74 @@ const groupSelector=[
 /** Top-level blocks of each section that reveal as a whole. Hero areas are left alone: they are on screen at load. */
 const blockSelector='main section:not([class*="hero"]):not(.legal-cover) > .container > *, main > .container:not(.breadcrumb-wrap) > *';
 
-const staggerStep=0.08;
+const staggerMs=80;
 const maxStagger=3;
+const keyframes:Keyframe[]=[{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'none'}];
+const timing:KeyframeAnimationOptions={duration:400,easing:'cubic-bezier(.22,1,.36,1)',fill:'backwards'};
 
 /**
- * Fades content up as it scrolls into view, for a livelier feel without moving anything the visitor
- * is already looking at. Content starts visible (no JavaScript, reduced motion, or already on screen)
- * and is only hidden once it is safely below the fold.
+ * Fades content up as it scrolls into view, without moving anything the visitor is already looking at.
+ *
+ * The page streams in, so this runs on elements React has not hydrated yet. It therefore never writes
+ * attributes, classes or inline styles: each element gets a paused Web Animation instead, which holds it
+ * at the first frame until it scrolls into view. The server-rendered HTML stays exactly as React expects.
+ * Content starts visible (no JavaScript, reduced motion, or already on screen) and an animation that is
+ * cancelled for any reason simply leaves the element visible.
  */
 export function ScrollReveal() {
   const pathname=usePathname();
 
   useEffect(()=>{
     const main=document.querySelector('main');
-    if (!main || !('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!main || !('IntersectionObserver' in window) || !('animate' in Element.prototype) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    const waiting=new Set<HTMLElement>();
-    const reveal=(element:HTMLElement)=>{
-      if (!waiting.delete(element)) return;
+    const seen=new WeakSet<Element>();
+    const waiting=new Map<Element,Animation>();
+
+    const reveal=(element:Element)=>{
+      const animation=waiting.get(element);
+      if (!animation) return;
+      waiting.delete(element);
       observer.unobserve(element);
-      element.classList.add('is-revealed');
-      // Hand the element back to its own styles (hover transitions and transforms) once it has arrived.
-      const delay=parseFloat(element.style.getPropertyValue('--reveal-delay')) || 0;
-      window.setTimeout(()=>{ element.removeAttribute('data-reveal');element.classList.remove('is-revealed');element.style.removeProperty('--reveal-delay'); },(delay+0.9)*1000);
+      animation.play();
+      // Hand the element back to its own styles once it has arrived.
+      animation.finished.then(()=>animation.cancel(),()=>{});
     };
     const observer=new IntersectionObserver(entries=>{
-      for (const entry of entries) if (entry.isIntersecting) reveal(entry.target as HTMLElement);
+      for (const entry of entries) if (entry.isIntersecting) reveal(entry.target);
     },{rootMargin:'0px 0px -8% 0px',threshold:0.08});
 
     // A jump (anchor link, End key, restored scroll position) can pass content without it ever
     // intersecting; reveal everything that is now on or above the screen.
     let scrollFrame=0;
-    const revealPassed=()=>{ scrollFrame=0;waiting.forEach(element=>{ if (element.getBoundingClientRect().top<window.innerHeight) reveal(element); }); };
+    const revealPassed=()=>{ scrollFrame=0;waiting.forEach((_,element)=>{ if (element.getBoundingClientRect().top<window.innerHeight) reveal(element); }); };
     const onScroll=()=>{ if (!scrollFrame) scrollFrame=window.requestAnimationFrame(revealPassed); };
     window.addEventListener('scroll',onScroll,{passive:true});
 
-    const prepare=(element:HTMLElement,index:number)=>{
-      if (element.dataset.revealSeen) return;
-      element.dataset.revealSeen='true';
-      if (element.closest('[data-reveal]') || element.querySelector('[data-reveal]')) return;
+    /** True when the element sits inside, or contains, something that is already waiting to reveal. */
+    const overlapsWaiting=(element:Element)=>{
+      for (let parent=element.parentElement;parent && parent!==main;parent=parent.parentElement) if (waiting.has(parent)) return true;
+      for (const other of waiting.keys()) if (element.contains(other)) return true;
+      return false;
+    };
+
+    const prepare=(element:Element,index:number)=>{
+      if (seen.has(element)) return;
+      seen.add(element);
+      if (overlapsWaiting(element)) return;
       if (element.getBoundingClientRect().top<window.innerHeight*0.92) return;
-      element.dataset.reveal='';
-      element.style.setProperty('--reveal-delay',`${Math.min(index,maxStagger)*staggerStep}s`);
-      waiting.add(element);
+      const animation=element.animate(keyframes,{...timing,delay:Math.min(index,maxStagger)*staggerMs});
+      animation.pause();
+      waiting.set(element,animation);
       observer.observe(element);
     };
 
     const scan=()=>{
-      main.querySelectorAll<HTMLElement>(groupSelector).forEach(group=>{
+      main.querySelectorAll(groupSelector).forEach(group=>{
         if (group.closest('[class*="hero"]')) return;
-        Array.from(group.children).forEach((child,index)=>prepare(child as HTMLElement,index));
+        Array.from(group.children).forEach((child,index)=>prepare(child,index));
       });
-      main.querySelectorAll<HTMLElement>(blockSelector).forEach(element=>{
+      main.querySelectorAll(blockSelector).forEach(element=>{
         const siblings=Array.from(element.parentElement?.children ?? []);
         prepare(element,siblings.indexOf(element));
       });
@@ -82,7 +98,8 @@ export function ScrollReveal() {
       window.cancelAnimationFrame(pending);
       window.cancelAnimationFrame(scrollFrame);
       // Never leave content hidden if the page changes mid-animation.
-      main.querySelectorAll<HTMLElement>('[data-reveal]').forEach(element=>{ element.removeAttribute('data-reveal');element.classList.remove('is-revealed'); });
+      waiting.forEach(animation=>animation.cancel());
+      waiting.clear();
     };
   },[pathname]);
 

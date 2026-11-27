@@ -3,7 +3,7 @@ import type { Destination } from '@/types/content';
 // BSB Global's focus destinations, in priority order.
 export const destinations: Destination[] = [
   {
-    slug: 'japan', name: 'Japan', seriesLabel: '01 / Study destinations', heading: 'Study in Japan from Nepal.',
+    slug: 'japan', name: 'Japan', seriesLabel: '01 / Study destinations', heading: 'Study in Japan from Nepal',
     intro: 'Compare Japanese language schools, vocational colleges and university courses, then check the language requirements, costs and application steps that apply to your chosen pathway.',
     cardSummary: 'Compare language school, vocational and university pathways from Nepal.', illustration: '/illustrations/destinations/japan.svg', keyTopics: 'Language · Institutions · Living',
     highlights: [
@@ -16,7 +16,7 @@ export const destinations: Destination[] = [
     featuredQuestion: {title: 'How can I apply to study in Japan from Nepal?', answer: 'Start by choosing a suitable pathway, then check the institution’s academic and language requirements, fees and deadlines. Requirements differ by provider, so use the institution’s current checklist before preparing documents.'}
   },
   {
-    slug: 'united-kingdom', name: 'United Kingdom', seriesLabel: '02 / Study destinations', heading: 'Study in the UK from Nepal.',
+    slug: 'united-kingdom', name: 'United Kingdom', seriesLabel: '02 / Study destinations', heading: 'Study in the UK from Nepal',
     intro: 'Compare UK courses by their content, entry requirements, location, tuition and total living costs, not rankings alone.',
     cardSummary: 'Compare courses, entry requirements, costs and application routes for the UK.', illustration: '/illustrations/destinations/united-kingdom.svg', keyTopics: 'Programmes · Costs · Entry',
     highlights: [
@@ -29,7 +29,7 @@ export const destinations: Destination[] = [
     featuredQuestion: {title: 'Can I study in the UK after completing +2 in Nepal?', answer: 'Your options depend on your qualification, grades, subjects and the institution’s published criteria. Some students may consider an undergraduate course or a preparatory pathway where appropriate.'}
   },
   {
-    slug: 'south-korea', name: 'South Korea', seriesLabel: '03 / Study destinations', heading: 'Study in South Korea from Nepal.',
+    slug: 'south-korea', name: 'South Korea', seriesLabel: '03 / Study destinations', heading: 'Study in South Korea from Nepal',
     intro: 'Compare Korean-language programmes and university degrees, then check their language requirements, costs and current application conditions.',
     cardSummary: 'Compare Korean-language and university-degree pathways from Nepal.', keyTopics: 'Language · Universities · Visas',
     highlights: [
@@ -45,5 +45,8 @@ export const destinations: Destination[] = [
     featuredQuestion: {title: 'Do I need Korean language skills to study in South Korea?', answer: 'Not always. Some degrees are taught in English, while Korean-taught programmes may require TOPIK evidence. Check the language of instruction and the institution’s exact requirement before applying.'}
   }
 ];
+
+/** Country codes for the route detail (Butwal → JP) used on cards and the hero pass. */
+export const destinationCodes: Record<string,string> = {'japan':'JP','united-kingdom':'GB','south-korea':'KR'};
 
 export function getDestination(slug: string) {return destinations.find(destination => destination.slug === slug);}

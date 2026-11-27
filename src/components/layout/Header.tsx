@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import {usePathname} from 'next/navigation';
 import {primaryNavigation} from '@/lib/site-config';
-import {destinations} from '@/content/destinations';
+import {destinations,destinationCodes} from '@/content/destinations';
 import {Icon} from '@/components/ui/Icon';
 import type {PublicBusinessProfile} from '@/server/site/repository';
 
@@ -34,15 +34,15 @@ export function Header({business}:{business:PublicBusinessProfile}) {
   const isCurrentPage = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href);
 
   return <>
-    <div className="topline"><div className="container topline-inner"><span>Guidance for your next chapter · Est. 2024</span><span className="topline-secondary"><a href={`tel:${business.phone.tel}`}>{business.phone.display}</a> · <a href={`mailto:${business.email}`}>{business.email}</a></span></div></div>
+    <div className="topline"><div className="container topline-inner"><span>Milanchowk, Butwal</span><span className="topline-secondary"><a href={`tel:${business.phone.tel}`}>{business.phone.display}</a><a href={`mailto:${business.email}`}>{business.email}</a></span></div></div>
     <header className={`site-header${isScrolled ? ' is-scrolled' : ''}`}>
       <div className="container header-inner">
-        <Link href="/" className="brand" aria-label="BSB Global home"><Image src="/brand/bsb-global-logo.webp" alt="" width={56} height={56} priority /><span className="brand-type"><strong>BSB GLOBAL</strong><small>{business.descriptor}</small></span></Link>
+        <Link href="/" className="brand" aria-label="BSB Global home"><Image src="/brand/bsb-global-logo.webp" alt="" width={48} height={48} priority /><span className="brand-type"><strong>BSB Global</strong><small>{business.descriptor}</small></span></Link>
         <nav className={`primary-nav${isMenuOpen ? ' is-open' : ''}`} aria-label="Primary navigation" id="primary-navigation">
           {primaryNavigation.map(item => item.href === '/study-abroad'
             ? <div className="nav-dropdown" key={item.href}>
                 <div className="nav-dropdown-controls"><Link href={item.href} className={isCurrentPage(item.href)?'is-active':''} aria-current={isCurrentPage(item.href)?'page':undefined}>Study abroad</Link><button className="dropdown-toggle" aria-label="Toggle study destinations" aria-expanded={isDestinationsMenuOpen} onClick={()=>setIsDestinationsMenuOpen(!isDestinationsMenuOpen)} type="button"><Icon name="chevron-down" size={16}/></button></div>
-                <div className={`nav-submenu${isDestinationsMenuOpen?' submenu-open':''}`}><p>Explore destinations</p>{destinations.map(destination=><Link key={destination.slug} href={`/study-abroad/${destination.slug}`}>{destination.name}</Link>)}</div>
+                <div className={`nav-submenu${isDestinationsMenuOpen?' submenu-open':''}`}><p>Explore destinations</p>{destinations.map(destination=><Link key={destination.slug} href={`/study-abroad/${destination.slug}`}>{destination.name}<small>Butwal → {destinationCodes[destination.slug]}</small></Link>)}</div>
               </div>
             : <Link key={item.href} href={item.href} className={isCurrentPage(item.href)?'is-active':''} aria-current={isCurrentPage(item.href)?'page':undefined}>{item.label}</Link>)}
           <Link className="button button-primary mobile-nav-cta" href="/contact">Book counselling</Link>

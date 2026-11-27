@@ -15,7 +15,7 @@ export async function FeaturedGallerySection() {
           href="/gallery"
           linkLabel="View the full gallery"
         />
-        <div className="photo-mosaic">
+        <div className="photo-mosaic" data-count={featured.length}>
           {featured.map((photo, index) => (
             <PhotoFigure
               key={photo.id}

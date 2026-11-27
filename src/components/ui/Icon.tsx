@@ -1,10 +1,10 @@
 import type { SVGProps, ReactNode } from 'react';
 
-export type IconName = 'chevron-down' | 'menu' | 'close' | 'check' | 'globe' | 'book' | 'compass' | 'file' | 'mail' | 'phone' | 'map' | 'clock' | 'external' | 'shield';
+export type IconName = 'chevron-down' | 'menu' | 'close' | 'check' | 'globe' | 'book' | 'compass' | 'file' | 'mail' | 'phone' | 'map' | 'clock' | 'external' | 'shield' | 'plane' | 'arrow-right';
 type Props = SVGProps<SVGSVGElement> & {name: IconName; size?: number};
 
 export function Icon({name, size = 20, ...props}: Props) {
-  const shared = {width:size,height:size,viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:1.8,strokeLinecap:'round' as const,strokeLinejoin:'round' as const,'aria-hidden':true as const};
+  const shared = {width:size,height:size,viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:1.5,strokeLinecap:'round' as const,strokeLinejoin:'round' as const,'aria-hidden':true as const};
   const shapes: Record<IconName, ReactNode> = {
     'chevron-down': <><path d="m6 9 6 6 6-6"/></>,
     'menu': <><path d="M4 7h16M4 12h16M4 17h16"/></>,
@@ -19,6 +19,8 @@ export function Icon({name, size = 20, ...props}: Props) {
     'map': <><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Zm6-3v15m6-12v15"/></>,
     'clock': <><circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 2"/></>,
     'external': <><path d="M14 4h6v6M20 4l-9 9"/><path d="M20 14v5H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></>,
+    'plane': <><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></>,
+    'arrow-right': <><path d="M5 12h14M13 6l6 6-6 6"/></>,
     'shield': <><path d="M12 2 4 5v6c0 5 3.5 8.5 8 11 4.5-2.5 8-6 8-11V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></>
   };
   return <svg {...shared} {...props}>{shapes[name]}</svg>;

@@ -17,7 +17,7 @@ export function AdminSidebar({loginId}:{loginId:string}) {
     router.refresh();
   };
   return <aside className="admin-sidebar">
-    <Link href="/admin" className="admin-brand"><span>BSB</span><strong>GLOBAL ADMIN</strong></Link>
+    <Link href="/admin" className="admin-brand"><span>BSB</span><strong>Admin</strong></Link>
     <nav aria-label="Admin navigation" className="admin-navigation">{navigation.map(item=>{
       const active=item.href==='/admin' ? pathname==='/admin' : pathname.startsWith(item.href);
       return <Link href={item.href} className={active?'is-active':''} aria-current={active?'page':undefined} key={item.href}>{item.label}</Link>;
